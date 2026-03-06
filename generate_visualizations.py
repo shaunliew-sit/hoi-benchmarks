@@ -381,8 +381,9 @@ def load_ground_results(task):
             data = json.load(f)
         for entry in data:
             fn = entry.get('file_name', '')
-            aoid = entry.get('action_object_id',
-                             f"{entry.get('action', '')}_{entry.get('object_category', entry.get('object', ''))}")
+            # Always build key from action+object to match annotation index and SFT/GRPO.
+            # Baseline has action_object_id="1_87_bench" (different format) so we ignore it.
+            aoid = f"{entry.get('action', '')}_{entry.get('object_category', entry.get('object', ''))}"
             idx[(fn, aoid)] = entry
         return idx
 
@@ -806,7 +807,7 @@ def build_selection_manifest(task, selected_keys, scored, results):
 
         model_scores = scored.get(key, {})
         manifest.append({
-            "key": str(key),
+            "key": list(key) if isinstance(key, tuple) else key,
             "file_name": fn,
             "action": action,
             "sft_score":   model_scores.get('sft',  (0, {}))[0],
