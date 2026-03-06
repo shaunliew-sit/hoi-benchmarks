@@ -891,6 +891,8 @@ def draw_bboxes_on_ax(ax, img_array, bbox_groups, title, title_color='black', fo
 
         for item in bboxes:
             if is_pair:
+                if len(item) < 2:
+                    continue
                 p_bb, o_bb = item[0], item[1]
                 for bb, color in [(p_bb, p_color), (o_bb, o_color)]:
                     x1, y1, x2, y2 = bb
@@ -932,7 +934,7 @@ def wrap_thinking(text, max_lines=4, line_width=60):
     lines = wrapped.split('\n')
     if len(lines) > max_lines:
         lines = lines[:max_lines]
-        lines[-1] = lines[-1][:line_width - 3] + '...'
+        lines[-1] = lines[-1][:max(0, line_width - 3)] + '...'
     return '\n'.join(lines)
 
 
@@ -980,17 +982,22 @@ def generate_comparison_grounding(task, key, results, annots_idx, output_dir):
             pred_pairs = parse_ground_answer_sft(entry.get('answer'), W, H)
 
         matched = entry.get('matches_per_threshold', {}).get('0.5', {}).get('matched', '?')
+        n_tools = len(entry.get('tool_calls', []))
         subtitle = f"{model_label}\npred={len(pred_pairs)}, gt={len(gt_pairs_px)}, matched@0.5={matched}"
-        if thinking and result_key != 'baseline':
-            subtitle += f"\n{wrap_thinking(thinking, max_lines=2, line_width=50)}"
+        if result_key == 'baseline':
+            subtitle += "\n[No Thinking]"
+        else:
+            subtitle += f"  [tools: {n_tools}]"
+            if thinking:
+                subtitle += f"\n{wrap_thinking(thinking, max_lines=2, line_width=50)}"
 
         pred_groups = [{"bboxes": [[p, o] for p, o in pred_pairs],
-                        "p_color": COLORS["person"], "o_color": COLORS["object"],
+                        "p_color": COLORS["pred"], "o_color": COLORS["pred"],
                         "label": "Pred pair"}]
         draw_bboxes_on_ax(ax, img_arr, pred_groups, subtitle, fontsize=7)
 
     plt.tight_layout()
-    safe_name = fn.replace('.jpg', '').replace('.png', '') + f"__{aoid.replace('/', '_')}"
+    safe_name = Path(fn).stem + f"__{aoid.replace('/', '_')}"
     out_path = output_dir / f"{safe_name}_comparison.png"
     plt.savefig(out_path, dpi=120, bbox_inches='tight')
     plt.close()
@@ -1040,7 +1047,9 @@ def generate_comparison_referring(task, key, results, annots_idx, output_dir):
 
         t_color = '#22AA22' if exact else '#CC2222'
         subtitle = f"{model_label}\nPred: {pred}"
-        if model_label != "Baseline":
+        if model_label == "Baseline":
+            subtitle += "\n[No Thinking]"
+        else:
             subtitle += f"  [tools: {n_tools}]"
             if thinking:
                 subtitle += f"\n{wrap_thinking(thinking, max_lines=2, line_width=50)}"
@@ -1177,14 +1186,14 @@ def save_reasoning_trajectory(task, key, results, annots_idx, output_dir):
 
     if is_ground:
         fn, aoid = key
-        annot = annots_idx.get(key, {})
-        action = annot.get('action', aoid)
-        obj_cat = annot.get('object_category', '')
+        annot = annots_idx.get(key)
+        action = annot.get('action', aoid) if annot else aoid
+        obj_cat = annot.get('object_category', '') if annot else ''
         gt_pairs = extract_gt_pairs_pixel(annot) if annot else []
         context = f"Action: {action}  |  Object: {obj_cat}  |  GT pairs: {len(gt_pairs)}"
     else:
-        annot = annots_idx.get(key, {})
-        fn = annot.get('file_name', f'triplet_{key}')
+        annot = annots_idx.get(key)
+        fn = annot.get('file_name', f'triplet_{key}') if annot else f'triplet_{key}'
         gt_action = annot.get('gt_action', '')
         context = f"GT Action: {gt_action}  |  Triplet ID: {key}"
 
@@ -1262,66 +1271,125 @@ def save_reasoning_trajectory(task, key, results, annots_idx, output_dir):
     print(f"  Saved: {out_path.name}")
 
 
-if __name__ == "__main__":
+def run_task(task):
+    """Run the full visualization pipeline for one task."""
+    print(f"\n{'='*60}")
+    print(f"TASK: {task}")
+    print(f"{'='*60}")
+
+    is_ground = 'ground' in task
+
+    # Load data
+    print("Loading annotations...")
+    annots_list, annots_idx = load_annotation(task)
+
+    print("Loading results...")
+    if is_ground:
+        results = load_ground_results(task)
+    else:
+        results = load_refer_results(task)
+
+    # Score samples for wrong-proposal detection
+    print("Scoring samples for wrong-proposal detection...")
+    scored = score_all_samples(task, results, annots_list, annots_idx)
+
+    # Report wrong-proposal statistics
+    total_scored = len(scored)
+    wp_cases = [(k, max(v.get('sft', (0, {}))[0], v.get('grpo', (0, {}))[0]))
+                for k, v in scored.items()
+                if max(v.get('sft', (0, {}))[0], v.get('grpo', (0, {}))[0]) >= WRONG_PROPOSAL_THRESHOLD]
+    wp_cases.sort(key=lambda x: -x[1])
+    print(f"  Scored {total_scored} samples; {len(wp_cases)} wrong-proposal cases "
+          f"(score >= {WRONG_PROPOSAL_THRESHOLD})")
+
+    # Select images
+    print("Selecting images...")
+    selected_keys = select_images_for_task(
+        task, results, annots_list, annots_idx, scored)
+    print(f"  Selected {len(selected_keys)} samples")
+
+    # Build and save manifest
+    build_selection_manifest(task, selected_keys, scored, results)
+
+    # Generate visualizations
+    comp_dir   = OUTPUT_DIR / task / "comparison"
+    sft_dir    = OUTPUT_DIR / task / "sft_detail"
+    grpo_dir   = OUTPUT_DIR / task / "grpo_detail"
+    reason_dir = OUTPUT_DIR / task / "reasoning"
+
+    print("Generating Type A comparison figures...")
+    for key in selected_keys:
+        try:
+            if is_ground:
+                generate_comparison_grounding(task, key, results, annots_idx, comp_dir)
+            else:
+                generate_comparison_referring(task, key, results, annots_idx, comp_dir)
+        except Exception as e:
+            print(f"  [ERROR] Type A for {key}: {e}")
+
+    print("Generating Type B detail figures (SFT)...")
+    for key in selected_keys:
+        try:
+            generate_detail_figure(task, key, "SFT", "sft",
+                                   results, annots_idx, sft_dir)
+        except Exception as e:
+            print(f"  [ERROR] Type B SFT for {key}: {e}")
+
+    print("Generating Type B detail figures (SFT-GRPO)...")
+    for key in selected_keys:
+        try:
+            generate_detail_figure(task, key, "SFT-GRPO", "grpo",
+                                   results, annots_idx, grpo_dir)
+        except Exception as e:
+            print(f"  [ERROR] Type B GRPO for {key}: {e}")
+
+    print("Generating Type C reasoning trajectories...")
+    for key in selected_keys:
+        try:
+            save_reasoning_trajectory(task, key, results, annots_idx, reason_dir)
+        except Exception as e:
+            print(f"  [ERROR] Type C for {key}: {e}")
+
+    print(f"Done: {task}")
+    return selected_keys, scored
+
+
+def main():
     setup_output_dirs()
     verify_paths()
     _test_utils()
 
-    print("Testing drawing and visualization functions...")
+    all_selected = {}
+    all_scored   = {}
 
-    # Load hico_ground data for testing
-    annots_list, annots_idx = load_annotation("hico_ground")
-    results = load_ground_results("hico_ground")
-    scored = score_all_samples("hico_ground", results, annots_list, annots_idx)
-    selected = select_images_for_task("hico_ground", results, annots_list, annots_idx, scored)
+    for task in ["hico_ground", "hico_refer", "swig_ground", "swig_refer"]:
+        selected, scored = run_task(task)
+        all_selected[task] = selected
+        all_scored[task]   = scored
 
-    first_key = selected[0]
-    print(f"Testing with key: {first_key}")
+    # Global wrong-proposal count check (must be >= 5 across all tasks)
+    total_wp = 0
+    for task, selected in all_selected.items():
+        scored = all_scored[task]
+        for key in selected:
+            max_score = max(scored.get(key, {}).get(m, (0, {}))[0]
+                            for m in ('sft', 'grpo'))
+            if max_score >= WRONG_PROPOSAL_THRESHOLD:
+                total_wp += 1
 
-    # Test Type A grounding comparison
-    generate_comparison_grounding("hico_ground", first_key, results, annots_idx,
-                                   OUTPUT_DIR / "hico_ground" / "comparison")
+    print(f"\n{'='*60}")
+    print(f"SUMMARY")
+    print(f"{'='*60}")
+    for task, selected in all_selected.items():
+        print(f"  {task}: {len(selected)} images selected")
+    print(f"  Total wrong-proposal cases across all tasks: {total_wp}")
+    if total_wp < 5:
+        print(f"  WARNING: Only {total_wp} wrong-proposal cases found (need >= 5). "
+              f"Consider lowering WRONG_PROPOSAL_THRESHOLD.")
+    else:
+        print(f"  OK: >= 5 wrong-proposal cases found.")
+    print(f"\nAll outputs saved to: {OUTPUT_DIR}")
 
-    # Test Type B detail figure (SFT)
-    generate_detail_figure("hico_ground", first_key, "SFT", "sft",
-                            results, annots_idx, OUTPUT_DIR / "hico_ground" / "sft_detail")
 
-    # Test Type B detail figure (GRPO)
-    generate_detail_figure("hico_ground", first_key, "SFT-GRPO", "grpo",
-                            results, annots_idx, OUTPUT_DIR / "hico_ground" / "grpo_detail")
-
-    # Test Type C reasoning trajectory
-    save_reasoning_trajectory("hico_ground", first_key, results, annots_idx,
-                               OUTPUT_DIR / "hico_ground" / "reasoning")
-
-    # Verify files were created
-    comp_files = list((OUTPUT_DIR / "hico_ground" / "comparison").glob("*.png"))
-    sft_files  = list((OUTPUT_DIR / "hico_ground" / "sft_detail").glob("*.png"))
-    grpo_files = list((OUTPUT_DIR / "hico_ground" / "grpo_detail").glob("*.png"))
-    reason_files = list((OUTPUT_DIR / "hico_ground" / "reasoning").glob("*.txt"))
-    assert len(comp_files) >= 1, "No comparison PNG generated"
-    assert len(sft_files)  >= 1, "No SFT detail PNG generated"
-    assert len(grpo_files) >= 1, "No GRPO detail PNG generated"
-    assert len(reason_files) >= 1, "No reasoning TXT generated"
-    print(f"  comparison: {len(comp_files)} PNG(s)")
-    print(f"  sft_detail: {len(sft_files)} PNG(s)")
-    print(f"  grpo_detail: {len(grpo_files)} PNG(s)")
-    print(f"  reasoning: {len(reason_files)} TXT(s)")
-
-    # Quick referring test
-    print("Testing referring visualization...")
-    annots_list_r, annots_idx_r = load_annotation("hico_refer")
-    results_r = load_refer_results("hico_refer")
-    scored_r = score_all_samples("hico_refer", results_r, annots_list_r, annots_idx_r)
-    selected_r = select_images_for_task("hico_refer", results_r, annots_list_r, annots_idx_r, scored_r)
-    first_key_r = selected_r[0]
-    generate_comparison_referring("hico_refer", first_key_r, results_r, annots_idx_r,
-                                   OUTPUT_DIR / "hico_refer" / "comparison")
-    generate_detail_figure("hico_refer", first_key_r, "SFT", "sft",
-                            results_r, annots_idx_r, OUTPUT_DIR / "hico_refer" / "sft_detail")
-    save_reasoning_trajectory("hico_refer", first_key_r, results_r, annots_idx_r,
-                               OUTPUT_DIR / "hico_refer" / "reasoning")
-    print(f"  Referring test done: triplet_id={first_key_r}")
-
-    print("All visualization tests passed")
-    print("Setup complete.")
+if __name__ == "__main__":
+    main()
