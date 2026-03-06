@@ -17,7 +17,7 @@ from PIL import Image
 import numpy as np
 
 # ── Paths ────────────────────────────────────────────────────────────────────
-REPO = Path("/workspace/hoi-benchmarks")
+REPO = Path(__file__).parent.resolve()
 PROPOSALS_DIR = Path("/workspace/hoi-tool-use-checkpoints/test_proposals")
 HICO_IMAGES = Path("/workspace/data/hico_20160224_det/images/test2015")
 SWIG_IMAGES = Path("/workspace/data/swig_hoi/images_512")
@@ -97,6 +97,10 @@ def setup_output_dirs():
 
 def verify_paths():
     missing = []
+    for label, d in [("PROPOSALS_DIR", PROPOSALS_DIR), ("HICO_IMAGES", HICO_IMAGES),
+                     ("SWIG_IMAGES", SWIG_IMAGES), ("ANNOT_DIR", ANNOT_DIR)]:
+        if not d.exists():
+            missing.append(f"  [dir][{label}]: {d}")
     for task, paths in RESULTS.items():
         for key, p in paths.items():
             if p is not None and not Path(p).exists():
@@ -105,10 +109,8 @@ def verify_paths():
         if not Path(p).exists():
             missing.append(f"  [annot][{task}]: {p}")
     if missing:
-        print("MISSING FILES:")
-        for m in missing:
-            print(m)
-        raise FileNotFoundError("Fix missing files before continuing")
+        detail = "\n".join(missing)
+        raise FileNotFoundError(f"Fix missing files before continuing:\n{detail}")
     print("All source files verified OK")
 
 
