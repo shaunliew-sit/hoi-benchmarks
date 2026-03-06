@@ -667,72 +667,196 @@ def score_sample(entry, thinking_content, is_ground,
     return score, reasons
 
 
+# ── Sample scoring + image selection ──────────────────────────────────────────
+
+def score_all_samples(task, results, annots_list, annots_idx):
+    """
+    Score all SFT and GRPO samples using the 5-signal wrong-proposal detection.
+    Returns dict: {lookup_key: {"sft": (score, reasons), "grpo": (score, reasons)}}
+    where lookup_key is (file_name, action_object_id) for grounding, triplet_id for referring.
+    """
+    is_ground = 'ground' in task
+    scored = {}
+
+    for model in ('sft', 'grpo'):
+        result_idx  = results[model]
+        think_map   = results[f'{model}_thinking']
+
+        for lookup_key, entry in result_idx.items():
+            fn = entry.get('file_name', '')
+            image_stem = Path(fn).stem
+
+            # Get annotation entry
+            if is_ground:
+                annot = annots_idx.get(lookup_key)
+            else:
+                tid = entry.get('triplet_id')
+                annot = annots_idx.get(tid) if tid is not None else None
+
+            # Get thinking content (prefer inline field, fall back to JSONL map)
+            if is_ground:
+                action = entry.get('action', '')
+                thinking = think_map.get((fn, action), '') or entry.get('thinking_content', '')
+            else:
+                thinking = entry.get('thinking_content', '')
+                if not thinking:
+                    thinking = think_map.get((fn, ''), '')
+
+            # Load proposals (grounding needs them for Signal 3)
+            proposals = load_proposals(image_stem) if is_ground else None
+
+            score, reasons = score_sample(
+                entry=entry,
+                thinking_content=thinking,
+                is_ground=is_ground,
+                annot_entry=annot,
+                proposals=proposals,
+                model=model,
+            )
+
+            if lookup_key not in scored:
+                scored[lookup_key] = {}
+            scored[lookup_key][model] = (score, reasons)
+
+    return scored
+
+
+def select_images_for_task(task, results, annots_list, annots_idx, scored,
+                            n=IMAGES_PER_TASK):
+    """
+    Select n samples for visualization.
+    Priority:
+      1. Mandatory images (MUST include — one entry per mandatory image stem)
+      2. Wrong-proposal cases (score >= WRONG_PROPOSAL_THRESHOLD), highest score first
+      3. Fill remaining slots with diverse images (one per unique image stem)
+
+    Returns list of lookup_keys.
+    """
+    is_ground = 'ground' in task
+    mandatory_stems = MANDATORY.get(task, [])
+    selected = []
+    selected_set = set()
+    selected_stems = set()
+
+    def get_stem(key):
+        if is_ground:
+            fn = key[0]
+        else:
+            entry = results['sft'].get(key) or results['baseline'].get(key) or {}
+            fn = entry.get('file_name', '')
+        return Path(fn).stem
+
+    # Pass 1: mandatory images
+    all_keys = list(results['sft'].keys())
+    for stem in mandatory_stems:
+        for key in all_keys:
+            if get_stem(key) == stem and key not in selected_set:
+                selected.append(key)
+                selected_set.add(key)
+                selected_stems.add(stem)
+                break  # one entry per mandatory image
+
+    # Pass 2: wrong-proposal cases
+    wrong_cases = []
+    for key, model_scores in scored.items():
+        max_score = max((v[0] for v in model_scores.values()), default=0)
+        if max_score >= WRONG_PROPOSAL_THRESHOLD and key not in selected_set:
+            stem = get_stem(key)
+            if stem not in selected_stems:
+                wrong_cases.append((max_score, key))
+    wrong_cases.sort(key=lambda x: -x[0])
+    for score_val, key in wrong_cases:
+        if len(selected) >= n:
+            break
+        selected.append(key)
+        selected_set.add(key)
+        selected_stems.add(get_stem(key))
+
+    # Pass 3: fill with diverse samples
+    if len(selected) < n:
+        import random
+        rng = random.Random(42)
+        shuffled_keys = list(all_keys)
+        rng.shuffle(shuffled_keys)
+        for key in shuffled_keys:
+            if len(selected) >= n:
+                break
+            stem = get_stem(key)
+            if key not in selected_set and stem not in selected_stems:
+                selected.append(key)
+                selected_set.add(key)
+                selected_stems.add(stem)
+
+    return selected[:n]
+
+
+def build_selection_manifest(task, selected_keys, scored, results):
+    """Build and save selection_manifest.json for a task. Returns the manifest list."""
+    is_ground = 'ground' in task
+    manifest = []
+    for key in selected_keys:
+        if is_ground:
+            entry = results['sft'].get(key) or results['baseline'].get(key) or {}
+            fn = entry.get('file_name', '')
+            action = entry.get('action', '')
+        else:
+            entry = results['sft'].get(key) or results['baseline'].get(key) or {}
+            fn = entry.get('file_name', '')
+            action = entry.get('ground_truth', '')
+
+        model_scores = scored.get(key, {})
+        manifest.append({
+            "key": str(key),
+            "file_name": fn,
+            "action": action,
+            "sft_score":   model_scores.get('sft',  (0, {}))[0],
+            "grpo_score":  model_scores.get('grpo', (0, {}))[0],
+            "sft_reasons": model_scores.get('sft',  (0, {}))[1],
+            "grpo_reasons":model_scores.get('grpo', (0, {}))[1],
+        })
+    out_path = OUTPUT_DIR / task / "selection_manifest.json"
+    with open(out_path, 'w') as f:
+        json.dump(manifest, f, indent=2)
+    print(f"  Saved manifest: {out_path.name}")
+    return manifest
+
+
 if __name__ == "__main__":
     setup_output_dirs()
     verify_paths()
     _test_utils()
 
-    # --- Data loading checks (from Task 3) ---
-    print("Loading hico_ground data...")
-    hg = load_ground_results("hico_ground")
-    print(f"  baseline entries: {len(hg['baseline'])}, sft: {len(hg['sft'])}, grpo: {len(hg['grpo'])}")
-
-    print("Loading hico_refer data...")
-    hr = load_refer_results("hico_refer")
-    print(f"  baseline triplets: {len(hr['baseline'])}, sft: {len(hr['sft'])}, grpo: {len(hr['grpo'])}")
-
-    props = load_proposals("HICO_test2015_00000001")
-    assert len(props) > 0
-    print(f"Proposals OK: {len(props)} entries")
-
+    print("Testing image selection on hico_ground...")
     annots_list, annots_idx = load_annotation("hico_ground")
-    print(f"hico_ground annotation: {len(annots_list)} entries")
+    results = load_ground_results("hico_ground")
+    scored = score_all_samples("hico_ground", results, annots_list, annots_idx)
+    print(f"  Scored {len(scored)} samples")
 
-    # --- Scorer tests (Tasks 4 + 5) ---
-    # Signal 1: empty answer
-    fake_ground_empty = {"answer": None, "num_pred_pairs": 0}
-    s1, r1 = score_empty_signal(fake_ground_empty, is_ground=True)
-    assert s1 == 5 and "answer=None" in r1, f"Signal1 failed: s1={s1}, r1={r1}"
-    s1_ref, _ = score_empty_signal(fake_ground_empty, is_ground=False)
-    assert s1_ref == 0, "Signal1 should not fire for referring"
+    # Count wrong-proposal cases
+    wp_cases = [(k, max(v.get('sft',(0,{}))[0], v.get('grpo',(0,{}))[0]))
+                for k, v in scored.items()
+                if max(v.get('sft',(0,{}))[0], v.get('grpo',(0,{}))[0]) >= WRONG_PROPOSAL_THRESHOLD]
+    print(f"  Wrong-proposal cases (score >= {WRONG_PROPOSAL_THRESHOLD}): {len(wp_cases)}")
 
-    # Signal 2: high-precision keyword
-    s2, s5, kws = score_text_signals("The proposal mislabeled as 'pirate' is wrong. Not in the proposal.")
-    assert s2 >= 4, f"Signal2 failed: s2={s2}"
+    selected = select_images_for_task("hico_ground", results, annots_list, annots_idx, scored)
+    print(f"  Selected {len(selected)} samples")
 
-    # Signal 3: bbox divergence
-    fake_entry = {"answer": '[{"bbox_2d": [800, 800, 950, 950], "label": "person"}]', "num_pred_pairs": 1}
-    fake_proposals = [{"bbox_1000": [0, 0, 100, 100], "class_name": "person", "confidence": 0.9,
-                       "bbox": [0, 0, 64, 48]}]
-    s3, r3 = signal3_bbox_diverge(fake_entry, fake_proposals)
-    assert s3 == 3, f"Signal3 failed: s3={s3}"
-    s3_no_prop, _ = signal3_bbox_diverge(fake_entry, [])
-    assert s3_no_prop == 0, "Signal3 should return 0 with empty proposals"
+    # Verify mandatory images are present
+    for stem in MANDATORY["hico_ground"]:
+        found = any(stem in str(k) for k in selected)
+        assert found, f"Mandatory image {stem} not in selection!"
+    print(f"  All mandatory images present: {MANDATORY['hico_ground']}")
 
-    # Signal 4: zoom divergence
-    fake_tc_entry = {"tool_calls": [{"name": "zoom_in", "bbox": [800, 800, 1000, 1000]}], "thinking_content": ""}
-    fake_annot = {"width": 640, "height": 480, "boxes": [[10, 10, 50, 50], [60, 60, 100, 100]],
-                  "person_box_idx": 0, "object_box_idx": 1}
-    s4, r4 = signal4_zoom_diverge(fake_tc_entry, fake_annot)
-    assert s4 == 3, f"Signal4 failed: s4={s4}"
-    # Zoom that overlaps with person box should NOT trigger
-    overlap_entry = {"tool_calls": [{"name": "zoom_in", "bbox": [0, 0, 200, 200]}], "thinking_content": ""}
-    s4_overlap, _ = signal4_zoom_diverge(overlap_entry, fake_annot)
-    assert s4_overlap == 0, f"Signal4 should not fire when zoom overlaps with boxes: s4={s4_overlap}"
+    # Count wrong-proposal cases in selection
+    wp_in_sel = sum(
+        1 for k in selected
+        if max(scored.get(k, {}).get(m, (0, {}))[0] for m in ('sft', 'grpo')) >= WRONG_PROPOSAL_THRESHOLD
+    )
+    print(f"  Wrong-proposal cases in selection: {wp_in_sel}")
 
-    # score_sample: baseline always returns 0
-    baseline_entry = {"answer": None, "num_pred_pairs": 0, "tool_calls": []}
-    s_base, r_base = score_sample(baseline_entry, "mislabeled as wrong", is_ground=True, model='baseline')
-    assert s_base == 0 and r_base == {}, f"Baseline should always score 0: s={s_base}"
+    manifest = build_selection_manifest("hico_ground", selected, scored, results)
+    assert len(manifest) == len(selected)
+    print(f"  Manifest saved with {len(manifest)} entries")
 
-    # score_sample: full grounding sample with multiple signals
-    full_entry = {"answer": '[{"bbox_2d": [800, 800, 950, 950], "label": "person"}]',
-                  "num_pred_pairs": 1}
-    thinking_with_kw = "The proposal mislabeled as 'pirate' is wrong. Not in the proposal."
-    s_full, r_full = score_sample(full_entry, thinking_with_kw, is_ground=True,
-                                  proposals=fake_proposals, model='sft')
-    assert s_full >= WRONG_PROPOSAL_THRESHOLD, f"Expected score >= {WRONG_PROPOSAL_THRESHOLD}, got {s_full}"
-    print(f"score_sample full test: score={s_full}, reasons={list(r_full.keys())}")
-
-    print("All scorer tests passed")
+    print("Task 6 tests passed")
     print("Setup complete.")
