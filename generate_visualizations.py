@@ -454,8 +454,8 @@ def load_annotation(task):
         idx = {}
         for entry in annots:
             fn = entry['file_name']
-            aoid = entry.get('action_object_id',
-                             f"{entry.get('action', '')}_{entry.get('object_category', '')}")
+            # Build key to match results indexing: "{action}_{object_category}"
+            aoid = f"{entry.get('action', '')}_{entry.get('object_category', '')}"
             idx[(fn, aoid)] = entry
         return annots, idx
     else:
@@ -821,42 +821,507 @@ def build_selection_manifest(task, selected_keys, scored, results):
     return manifest
 
 
+# ── Drawing utilities ──────────────────────────────────────────────────────────
+
+def load_image(file_name, task):
+    """Load PIL image for a given file_name and task (determines image dir)."""
+    if 'hico' in task:
+        img_path = HICO_IMAGES / file_name
+    else:
+        img_path = SWIG_IMAGES / file_name
+    if not img_path.exists():
+        for ext in ('.jpg', '.jpeg', '.png'):
+            alt = img_path.with_suffix(ext)
+            if alt.exists():
+                return Image.open(alt).convert('RGB')
+        raise FileNotFoundError(f"Image not found: {img_path}")
+    return Image.open(img_path).convert('RGB')
+
+
+def draw_bboxes_on_ax(ax, img_array, bbox_groups, title, title_color='black', fontsize=9):
+    """
+    Draw an image with colored bounding boxes on a matplotlib Axes.
+
+    bbox_groups: list of dicts, each with one of two formats:
+
+    Pair format (person-object pairs):
+      {
+        'bboxes': [[p_bbox, o_bbox], ...],  # pixel coords [x1,y1,x2,y2]
+        'p_color': hex_str,
+        'o_color': hex_str,
+        'label': str,
+        'linestyle': '-' or '--',
+        'linewidth': float,
+      }
+
+    Single format (individual boxes):
+      {
+        'bboxes': [[x1,y1,x2,y2], ...],
+        'color': hex_str,
+        'label': str,
+        'linestyle': '-' or '--',
+        'linewidth': float,
+      }
+
+    A group is in pair format if its first bbox item is itself a list of lists,
+    i.e. isinstance(item[0], list) where item = bboxes[0].
+    """
+    ax.imshow(img_array)
+    ax.set_title(title, color=title_color, fontsize=fontsize,
+                 fontweight='bold', pad=4, wrap=True)
+    ax.axis('off')
+
+    legend_patches = []
+
+    for group in bbox_groups:
+        bboxes   = group.get('bboxes', [])
+        p_color  = group.get('p_color', COLORS['pred'])
+        o_color  = group.get('o_color', COLORS['pred'])
+        s_color  = group.get('color', p_color)
+        label    = group.get('label', '')
+        ls       = group.get('linestyle', '-')
+        lw       = group.get('linewidth', 2.0)
+
+        if not bboxes:
+            continue
+
+        # Determine format: pair if first element's first element is a list
+        first = bboxes[0]
+        is_pair = isinstance(first[0], (list, tuple))
+
+        for item in bboxes:
+            if is_pair:
+                p_bb, o_bb = item[0], item[1]
+                for bb, color in [(p_bb, p_color), (o_bb, o_color)]:
+                    x1, y1, x2, y2 = bb
+                    rect = patches.Rectangle(
+                        (x1, y1), max(1, x2 - x1), max(1, y2 - y1),
+                        linewidth=lw, edgecolor=color, facecolor='none', linestyle=ls
+                    )
+                    ax.add_patch(rect)
+                # Connecting line between centers
+                p_cx = (p_bb[0] + p_bb[2]) / 2
+                p_cy = (p_bb[1] + p_bb[3]) / 2
+                o_cx = (o_bb[0] + o_bb[2]) / 2
+                o_cy = (o_bb[1] + o_bb[3]) / 2
+                ax.plot([p_cx, o_cx], [p_cy, o_cy],
+                        color=p_color, lw=1, ls='--', alpha=0.6)
+            else:
+                x1, y1, x2, y2 = item
+                rect = patches.Rectangle(
+                    (x1, y1), max(1, x2 - x1), max(1, y2 - y1),
+                    linewidth=lw, edgecolor=s_color, facecolor='none', linestyle=ls
+                )
+                ax.add_patch(rect)
+
+        legend_color = s_color if not is_pair else p_color
+        if label:
+            legend_patches.append(patches.Patch(color=legend_color, label=label))
+
+    if legend_patches:
+        ax.legend(handles=legend_patches, loc='upper right', fontsize=6,
+                  framealpha=0.7, markerscale=0.8)
+
+
+def wrap_thinking(text, max_lines=4, line_width=60):
+    """Truncate and wrap thinking content for display as a panel caption."""
+    if not text:
+        return "(no thinking)"
+    first_para = text.split('\n\n')[0].replace('\n', ' ').strip()
+    wrapped = textwrap.fill(first_para, width=line_width)
+    lines = wrapped.split('\n')
+    if len(lines) > max_lines:
+        lines = lines[:max_lines]
+        lines[-1] = lines[-1][:line_width - 3] + '...'
+    return '\n'.join(lines)
+
+
+# ── Type A: 4-panel comparison ─────────────────────────────────────────────────
+
+def generate_comparison_grounding(task, key, results, annots_idx, output_dir):
+    """Type A: 4-panel comparison (GT | Baseline | SFT | SFT-GRPO) for grounding."""
+    fn, aoid = key
+    annot = annots_idx.get(key)
+    if annot is None:
+        print(f"  [SKIP] No annotation for {key}")
+        return
+
+    img = load_image(fn, task)
+    img_arr = np.array(img)
+    W, H = img.size
+
+    gt_pairs_px = extract_gt_pairs_pixel(annot)
+    action = annot.get('action', aoid)
+    obj_cat = annot.get('object_category', '')
+
+    fig, axes = plt.subplots(1, 4, figsize=(22, 6))
+    fig.suptitle(f"{fn}  —  {action} | {obj_cat}", fontsize=9, y=1.01)
+
+    # GT panel
+    gt_groups = [{"bboxes": [[p, o] for p, o in gt_pairs_px],
+                  "p_color": COLORS["gt"], "o_color": COLORS["gt"],
+                  "label": "GT pair", "linestyle": "-"}]
+    draw_bboxes_on_ax(axes[0], img_arr, gt_groups,
+                      f"Ground Truth\n{len(gt_pairs_px)} pair(s)", fontsize=8)
+
+    # Model panels
+    for ax, (model_label, result_key) in zip(axes[1:], [
+        ("Baseline", "baseline"),
+        ("SFT",      "sft"),
+        ("SFT-GRPO", "grpo"),
+    ]):
+        entry = results[result_key].get(key, {})
+        thinking_map = results.get(f'{result_key}_thinking', {})
+        thinking = entry.get('thinking_content', '') or thinking_map.get((fn, action), '')
+
+        if result_key == 'baseline':
+            pred_pairs = parse_ground_answer_baseline(entry.get('generated_text', ''), W, H)
+        else:
+            pred_pairs = parse_ground_answer_sft(entry.get('answer'), W, H)
+
+        matched = entry.get('matches_per_threshold', {}).get('0.5', {}).get('matched', '?')
+        subtitle = f"{model_label}\npred={len(pred_pairs)}, gt={len(gt_pairs_px)}, matched@0.5={matched}"
+        if thinking and result_key != 'baseline':
+            subtitle += f"\n{wrap_thinking(thinking, max_lines=2, line_width=50)}"
+
+        pred_groups = [{"bboxes": [[p, o] for p, o in pred_pairs],
+                        "p_color": COLORS["person"], "o_color": COLORS["object"],
+                        "label": "Pred pair"}]
+        draw_bboxes_on_ax(ax, img_arr, pred_groups, subtitle, fontsize=7)
+
+    plt.tight_layout()
+    safe_name = fn.replace('.jpg', '').replace('.png', '') + f"__{aoid.replace('/', '_')}"
+    out_path = output_dir / f"{safe_name}_comparison.png"
+    plt.savefig(out_path, dpi=120, bbox_inches='tight')
+    plt.close()
+    print(f"  Saved: {out_path.name}")
+
+
+def generate_comparison_referring(task, key, results, annots_idx, output_dir):
+    """Type A: 4-panel comparison (GT | Baseline | SFT | SFT-GRPO) for action referring."""
+    annot = annots_idx.get(key)
+    if annot is None:
+        print(f"  [SKIP] No annotation for triplet_id={key}")
+        return
+
+    fn = annot['file_name']
+    img = load_image(fn, task)
+    img_arr = np.array(img)
+    gt_action = annot.get('gt_action', '')
+
+    p_bb_px, o_bb_px = extract_refer_input_bboxes_pixel(annot)
+    input_groups = [
+        {"bboxes": [p_bb_px], "color": COLORS["person"], "label": "Person", "linewidth": 2.5},
+        {"bboxes": [o_bb_px], "color": COLORS["object"],  "label": "Object",  "linewidth": 2.5},
+    ]
+
+    fig, axes = plt.subplots(1, 4, figsize=(22, 6))
+    fig.suptitle(f"{fn}  —  GT: {gt_action}", fontsize=9, y=1.01)
+
+    # GT panel (show input bboxes + GT action label)
+    draw_bboxes_on_ax(axes[0], img_arr, input_groups,
+                      f"Ground Truth\n{gt_action}", fontsize=8)
+
+    # Model panels
+    for ax, (model_label, result_key) in zip(axes[1:], [
+        ("Baseline", "baseline"),
+        ("SFT",      "sft"),
+        ("SFT-GRPO", "grpo"),
+    ]):
+        entry = results[result_key].get(key, {})
+        thinking = entry.get('thinking_content', '')
+        think_map = results.get(f'{result_key}_thinking', {})
+        if not thinking:
+            thinking = think_map.get((fn, ''), '')
+
+        pred = entry.get('prediction', '—')
+        exact = entry.get('exact_match', False)
+        n_tools = len(entry.get('tool_calls', []))
+
+        t_color = '#22AA22' if exact else '#CC2222'
+        subtitle = f"{model_label}\nPred: {pred}"
+        if model_label != "Baseline":
+            subtitle += f"  [tools: {n_tools}]"
+            if thinking:
+                subtitle += f"\n{wrap_thinking(thinking, max_lines=2, line_width=50)}"
+
+        draw_bboxes_on_ax(ax, img_arr, input_groups, subtitle,
+                          title_color=t_color, fontsize=7)
+
+    plt.tight_layout()
+    stem = Path(fn).stem
+    out_path = output_dir / f"{stem}__triplet{key}_comparison.png"
+    plt.savefig(out_path, dpi=120, bbox_inches='tight')
+    plt.close()
+    print(f"  Saved: {out_path.name}")
+
+
+# ── Type B: 3-panel proposals|prediction|GT ────────────────────────────────────
+
+def generate_detail_figure(task, key, model_label, result_key,
+                            results, annots_idx, output_dir):
+    """Type B: 3-panel detail figure (Proposals | Prediction | GT) for SFT or GRPO."""
+    is_ground = 'ground' in task
+
+    if is_ground:
+        fn, aoid = key
+        annot = annots_idx.get(key)
+    else:
+        annot = annots_idx.get(key)
+        fn = annot['file_name'] if annot else ''
+
+    if annot is None:
+        print(f"  [SKIP] No annotation for {key}")
+        return
+
+    img = load_image(fn, task)
+    img_arr = np.array(img)
+    W, H = img.size
+    image_stem = Path(fn).stem
+
+    # Load proposals
+    proposals = load_proposals(image_stem)
+    prop_groups = []
+    for prop in proposals:
+        bb_px = prop['bbox']
+        conf = prop.get('confidence', 0)
+        prop_groups.append({
+            "bboxes": [bb_px],
+            "color": COLORS["proposal"],
+            "label": f"{prop['class_name']} {conf:.2f}",
+            "linestyle": "--",
+            "linewidth": 1.5,
+        })
+
+    entry = results[result_key].get(key, {})
+
+    if is_ground:
+        action = annot.get('action', '')
+        thinking_map = results.get(f'{result_key}_thinking', {})
+        thinking = entry.get('thinking_content', '') or thinking_map.get((fn, action), '')
+        gt_pairs_px = extract_gt_pairs_pixel(annot)
+        if result_key == 'baseline':
+            pred_pairs = parse_ground_answer_baseline(entry.get('generated_text', ''), W, H)
+        else:
+            pred_pairs = parse_ground_answer_sft(entry.get('answer'), W, H)
+
+        gt_groups   = [{"bboxes": [[p, o] for p, o in gt_pairs_px],
+                        "p_color": COLORS["gt"], "o_color": COLORS["gt"], "label": "GT pair"}]
+        pred_groups = [{"bboxes": [[p, o] for p, o in pred_pairs],
+                        "p_color": COLORS["person"], "o_color": COLORS["object"],
+                        "label": "Pred pair"}]
+        gt_title    = f"Ground Truth\n{len(gt_pairs_px)} pair(s)"
+        pred_title  = f"{model_label}\n{len(pred_pairs)} pair(s) predicted"
+        fig_suptitle = f"{fn}  |  {action}  |  {model_label}"
+    else:
+        thinking = entry.get('thinking_content', '')
+        gt_action = annot.get('gt_action', '')
+        pred = entry.get('prediction', '—')
+        p_bb_px, o_bb_px = extract_refer_input_bboxes_pixel(annot)
+        box_groups = [{"bboxes": [p_bb_px], "color": COLORS["person"], "label": "Person"},
+                      {"bboxes": [o_bb_px], "color": COLORS["object"],  "label": "Object"}]
+        gt_groups   = box_groups
+        pred_groups = box_groups
+        gt_title    = f"Ground Truth\n{gt_action}"
+        pred_title  = f"{model_label}\nPred: {pred}"
+        fig_suptitle = f"{fn}  |  GT: {gt_action}  |  {model_label}"
+
+    fig, axes = plt.subplots(1, 3, figsize=(18, 6))
+    fig.suptitle(fig_suptitle, fontsize=9, y=1.01)
+
+    # Panel 1: Proposals
+    draw_bboxes_on_ax(axes[0], img_arr, prop_groups,
+                      f"Proposals ({len(proposals)} detected)", fontsize=7)
+
+    # Panel 2: Prediction + thinking caption
+    think_caption = wrap_thinking(thinking, max_lines=3, line_width=55)
+    pred_full = pred_title + (f"\n{think_caption}" if thinking else "")
+    draw_bboxes_on_ax(axes[1], img_arr, pred_groups, pred_full, fontsize=7)
+
+    # Panel 3: GT
+    draw_bboxes_on_ax(axes[2], img_arr, gt_groups, gt_title, fontsize=8)
+
+    # Tool call sequence as figure footer
+    tool_calls = entry.get('tool_calls', [])
+    if tool_calls:
+        tool_summary = " -> ".join(
+            f"zoom_in({tc.get('bbox','')})" if tc.get('name') == 'zoom_in' else tc.get('name','?')
+            for tc in tool_calls
+        )
+        fig.text(0.5, -0.02, f"Tools: {tool_summary[:130]}", ha='center', fontsize=6, color='gray')
+
+    plt.tight_layout()
+
+    safe_name = Path(fn).stem
+    if is_ground:
+        safe_name += f"__{key[1].replace('/', '_')}"
+    else:
+        safe_name += f"__triplet{key}"
+    out_path = output_dir / f"{safe_name}_{result_key}_detail.png"
+    plt.savefig(out_path, dpi=120, bbox_inches='tight')
+    plt.close()
+    print(f"  Saved: {out_path.name}")
+
+
+# ── Type C: reasoning trajectory text files ────────────────────────────────────
+
+def save_reasoning_trajectory(task, key, results, annots_idx, output_dir):
+    """
+    Save Type C: reasoning trajectory as a structured .txt file with:
+    - Sample metadata
+    - Tool call sequence (per model)
+    - Full prediction
+    - Full thinking content (SFT and GRPO)
+    """
+    is_ground = 'ground' in task
+
+    if is_ground:
+        fn, aoid = key
+        annot = annots_idx.get(key, {})
+        action = annot.get('action', aoid)
+        obj_cat = annot.get('object_category', '')
+        gt_pairs = extract_gt_pairs_pixel(annot) if annot else []
+        context = f"Action: {action}  |  Object: {obj_cat}  |  GT pairs: {len(gt_pairs)}"
+    else:
+        annot = annots_idx.get(key, {})
+        fn = annot.get('file_name', f'triplet_{key}')
+        gt_action = annot.get('gt_action', '')
+        context = f"GT Action: {gt_action}  |  Triplet ID: {key}"
+
+    lines = [
+        "=" * 80,
+        "REASONING TRAJECTORY",
+        f"Task:  {task}",
+        f"Image: {fn}",
+        context,
+        "=" * 80,
+        "",
+    ]
+
+    for model_label, result_key in [("SFT", "sft"), ("SFT-GRPO", "grpo")]:
+        entry = results[result_key].get(key, {})
+        think_map = results.get(f'{result_key}_thinking', {})
+
+        thinking = entry.get('thinking_content', '')
+        if not thinking and is_ground:
+            action_str = annot.get('action', '') if annot else ''
+            thinking = think_map.get((fn, action_str), '')
+        elif not thinking:
+            thinking = think_map.get((fn, ''), '')
+
+        tool_calls = entry.get('tool_calls', [])
+
+        if is_ground:
+            answer = entry.get('answer') or 'None'
+            n_pred = entry.get('num_pred_pairs', 0)
+            pred_summary = f"Predicted {n_pred} pair(s)\nAnswer:\n{answer}"
+        else:
+            pred = entry.get('prediction', '—')
+            exact = entry.get('exact_match', False)
+            gt = entry.get('ground_truth', '')
+            pred_summary = f"Prediction:    {pred}\nGround Truth:  {gt}\nExact Match:   {exact}"
+
+        lines += [
+            "-" * 40,
+            f"MODEL: {model_label}",
+            "-" * 40,
+            "",
+            "[ TOOL CALL SEQUENCE ]",
+        ]
+
+        if tool_calls:
+            for tc in tool_calls:
+                name = tc.get('name', '?')
+                turn = tc.get('turn', '?')
+                bbox = tc.get('bbox', '')
+                if bbox:
+                    lines.append(f"  Turn {turn}: {name}(bbox={bbox})")
+                else:
+                    lines.append(f"  Turn {turn}: {name}()")
+        else:
+            lines.append("  (no tool calls)")
+
+        lines += [
+            "",
+            "[ PREDICTION ]",
+            pred_summary,
+            "",
+            "[ REASONING PROCESS ]",
+            thinking if thinking else "(no thinking content available)",
+            "",
+        ]
+
+    safe_name = Path(fn).stem
+    if is_ground:
+        safe_name += f"__{key[1].replace('/', '_')}"
+    else:
+        safe_name += f"__triplet{key}"
+    out_path = output_dir / f"{safe_name}_reasoning.txt"
+    with open(out_path, 'w', encoding='utf-8') as f:
+        f.write('\n'.join(lines))
+    print(f"  Saved: {out_path.name}")
+
+
 if __name__ == "__main__":
     setup_output_dirs()
     verify_paths()
     _test_utils()
 
-    print("Testing image selection on hico_ground...")
+    print("Testing drawing and visualization functions...")
+
+    # Load hico_ground data for testing
     annots_list, annots_idx = load_annotation("hico_ground")
     results = load_ground_results("hico_ground")
     scored = score_all_samples("hico_ground", results, annots_list, annots_idx)
-    print(f"  Scored {len(scored)} samples")
-
-    # Count wrong-proposal cases
-    wp_cases = [(k, max(v.get('sft',(0,{}))[0], v.get('grpo',(0,{}))[0]))
-                for k, v in scored.items()
-                if max(v.get('sft',(0,{}))[0], v.get('grpo',(0,{}))[0]) >= WRONG_PROPOSAL_THRESHOLD]
-    print(f"  Wrong-proposal cases (score >= {WRONG_PROPOSAL_THRESHOLD}): {len(wp_cases)}")
-
     selected = select_images_for_task("hico_ground", results, annots_list, annots_idx, scored)
-    print(f"  Selected {len(selected)} samples")
 
-    # Verify mandatory images are present
-    for stem in MANDATORY["hico_ground"]:
-        found = any(stem in str(k) for k in selected)
-        assert found, f"Mandatory image {stem} not in selection!"
-    print(f"  All mandatory images present: {MANDATORY['hico_ground']}")
+    first_key = selected[0]
+    print(f"Testing with key: {first_key}")
 
-    # Count wrong-proposal cases in selection
-    wp_in_sel = sum(
-        1 for k in selected
-        if max(scored.get(k, {}).get(m, (0, {}))[0] for m in ('sft', 'grpo')) >= WRONG_PROPOSAL_THRESHOLD
-    )
-    print(f"  Wrong-proposal cases in selection: {wp_in_sel}")
+    # Test Type A grounding comparison
+    generate_comparison_grounding("hico_ground", first_key, results, annots_idx,
+                                   OUTPUT_DIR / "hico_ground" / "comparison")
 
-    manifest = build_selection_manifest("hico_ground", selected, scored, results)
-    assert len(manifest) == len(selected)
-    print(f"  Manifest saved with {len(manifest)} entries")
+    # Test Type B detail figure (SFT)
+    generate_detail_figure("hico_ground", first_key, "SFT", "sft",
+                            results, annots_idx, OUTPUT_DIR / "hico_ground" / "sft_detail")
 
-    print("Task 6 tests passed")
+    # Test Type B detail figure (GRPO)
+    generate_detail_figure("hico_ground", first_key, "SFT-GRPO", "grpo",
+                            results, annots_idx, OUTPUT_DIR / "hico_ground" / "grpo_detail")
+
+    # Test Type C reasoning trajectory
+    save_reasoning_trajectory("hico_ground", first_key, results, annots_idx,
+                               OUTPUT_DIR / "hico_ground" / "reasoning")
+
+    # Verify files were created
+    comp_files = list((OUTPUT_DIR / "hico_ground" / "comparison").glob("*.png"))
+    sft_files  = list((OUTPUT_DIR / "hico_ground" / "sft_detail").glob("*.png"))
+    grpo_files = list((OUTPUT_DIR / "hico_ground" / "grpo_detail").glob("*.png"))
+    reason_files = list((OUTPUT_DIR / "hico_ground" / "reasoning").glob("*.txt"))
+    assert len(comp_files) >= 1, "No comparison PNG generated"
+    assert len(sft_files)  >= 1, "No SFT detail PNG generated"
+    assert len(grpo_files) >= 1, "No GRPO detail PNG generated"
+    assert len(reason_files) >= 1, "No reasoning TXT generated"
+    print(f"  comparison: {len(comp_files)} PNG(s)")
+    print(f"  sft_detail: {len(sft_files)} PNG(s)")
+    print(f"  grpo_detail: {len(grpo_files)} PNG(s)")
+    print(f"  reasoning: {len(reason_files)} TXT(s)")
+
+    # Quick referring test
+    print("Testing referring visualization...")
+    annots_list_r, annots_idx_r = load_annotation("hico_refer")
+    results_r = load_refer_results("hico_refer")
+    scored_r = score_all_samples("hico_refer", results_r, annots_list_r, annots_idx_r)
+    selected_r = select_images_for_task("hico_refer", results_r, annots_list_r, annots_idx_r, scored_r)
+    first_key_r = selected_r[0]
+    generate_comparison_referring("hico_refer", first_key_r, results_r, annots_idx_r,
+                                   OUTPUT_DIR / "hico_refer" / "comparison")
+    generate_detail_figure("hico_refer", first_key_r, "SFT", "sft",
+                            results_r, annots_idx_r, OUTPUT_DIR / "hico_refer" / "sft_detail")
+    save_reasoning_trajectory("hico_refer", first_key_r, results_r, annots_idx_r,
+                               OUTPUT_DIR / "hico_refer" / "reasoning")
+    print(f"  Referring test done: triplet_id={first_key_r}")
+
+    print("All visualization tests passed")
     print("Setup complete.")
