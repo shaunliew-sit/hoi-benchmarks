@@ -463,45 +463,272 @@ def load_annotation(task):
         return annots, idx
 
 
+# ── Wrong-proposal detection ───────────────────────────────────────────────────
+
+HIGH_PRECISION_KEYWORDS = [
+    "mislabeled as", "mislabelled as",
+    "incorrectly labeled", "incorrectly labelled",
+    "not in the proposal", "not from the proposal",
+    "no proposal", "no valid proposal",
+    "my own bounding box", "estimate my own",
+    "propose my own", "my own estimate",
+    "not detected in the proposal", "not present in the proposal",
+    "i'll use a different", "use different coordinates",
+    "not from any proposal",
+]
+
+MEDIUM_KEYWORDS = [
+    "wrong label", "wrong class", "wrong bounding",
+    "different region", "different area",
+    "different from the proposal",
+    "cannot find", "no valid",
+    "not aligned with the proposal",
+    "incorrectly detected",
+    "wrong detection",
+]
+
+
+def score_text_signals(thinking_content):
+    """
+    Score a thinking string for Signals 2 (high-precision) and 5 (medium) keywords.
+    Returns (signal2_score, signal5_score, matched_keywords).
+    matched_keywords is list of ("HIGH"|"MED", keyword_string) tuples.
+    """
+    if not thinking_content:
+        return 0, 0, []
+
+    text = thinking_content.lower()
+    matched = []
+
+    s2 = 0
+    for kw in HIGH_PRECISION_KEYWORDS:
+        if kw in text:
+            s2 += 4
+            matched.append(("HIGH", kw))
+
+    s5 = 0
+    for kw in MEDIUM_KEYWORDS:
+        if kw in text:
+            s5 += 2
+            matched.append(("MED", kw))
+
+    return s2, s5, matched
+
+
+def score_empty_signal(entry, is_ground):
+    """
+    Signal 1: empty/None response (grounding only).
+    Returns (score, list_of_reasons).
+    """
+    if not is_ground:
+        return 0, []
+    reasons = []
+    if entry.get('answer') is None:
+        reasons.append("answer=None")
+    if entry.get('num_pred_pairs', -1) == 0:
+        reasons.append("num_pred_pairs=0")
+    if isinstance(entry.get('answer'), str) and entry['answer'].strip() in ('', '[]'):
+        reasons.append("answer='[]'")
+    return (5 if reasons else 0), reasons
+
+
+def signal3_bbox_diverge(entry, proposals):
+    """
+    Signal 3 (grounding only): any predicted bbox has max IoU < BBOX_DIVERGE_IOU_THRESH
+    with ALL proposal bboxes_1000.
+    Returns (score, list_of_diverged_info) or (0, []).
+    """
+    if not proposals:
+        return 0, []
+
+    answer = entry.get('answer')
+    if not answer:
+        return 0, []
+
+    pred_bboxes = extract_all_pred_bboxes_1000(answer)
+    if not pred_bboxes:
+        return 0, []
+
+    prop_bboxes_1000 = [p['bbox_1000'] for p in proposals]
+    diverged = []
+    for pred_bb in pred_bboxes:
+        max_iou = max((bbox_iou(pred_bb, pb) for pb in prop_bboxes_1000), default=0.0)
+        if max_iou < BBOX_DIVERGE_IOU_THRESH:
+            diverged.append({'pred_bbox': pred_bb, 'max_iou': round(max_iou, 3)})
+
+    if diverged:
+        return 3, diverged
+    return 0, []
+
+
+def signal4_zoom_diverge(entry, annot_entry):
+    """
+    Signal 4 (action referring only): ALL zoom_in tool calls target a region
+    with IoU < ZOOM_DIVERGE_IOU_THRESH with BOTH the given person AND object boxes.
+    Returns (score, list_of_diverged_zoom_info) or (0, []).
+    """
+    if annot_entry is None:
+        return 0, []
+
+    tool_calls = entry.get('tool_calls', [])
+    zoom_ins = [tc for tc in tool_calls if tc.get('name') == 'zoom_in']
+    if not zoom_ins:
+        return 0, []
+
+    w = annot_entry.get('width', 1)
+    h = annot_entry.get('height', 1)
+    boxes = annot_entry.get('boxes', [])
+    p_idx = annot_entry.get('person_box_idx')
+    o_idx = annot_entry.get('object_box_idx')
+
+    if p_idx is None or o_idx is None or p_idx >= len(boxes) or o_idx >= len(boxes):
+        return 0, []
+
+    p_bb_1000 = scale_to_1000(boxes[p_idx], w, h)
+    o_bb_1000 = scale_to_1000(boxes[o_idx], w, h)
+
+    all_diverged = True
+    diverged_zooms = []
+    for tc in zoom_ins:
+        zoom_bb = tc.get('bbox', [])
+        if len(zoom_bb) != 4:
+            continue
+        p_iou = bbox_iou(zoom_bb, p_bb_1000)
+        o_iou = bbox_iou(zoom_bb, o_bb_1000)
+        max_iou = max(p_iou, o_iou)
+        if max_iou >= ZOOM_DIVERGE_IOU_THRESH:
+            all_diverged = False
+            break
+        diverged_zooms.append({
+            'zoom_bbox': zoom_bb,
+            'person_iou': round(p_iou, 3),
+            'object_iou': round(o_iou, 3),
+        })
+
+    if all_diverged and diverged_zooms:
+        return 3, diverged_zooms
+    return 0, []
+
+
+def score_sample(entry, thinking_content, is_ground,
+                 annot_entry=None, proposals=None, model=None):
+    """
+    Compute wrong-proposal score for a single sample.
+    Returns (total_score, reasons_dict).
+
+    Signals:
+      1 (+5): empty/None answer (grounding only)
+      2 (+4 each): high-precision keywords in thinking
+      3 (+3): predicted bbox IoU < threshold vs all proposals (grounding)
+      4 (+3): all zoom_in calls miss given person+object boxes (referring)
+      5 (+2 each): medium-confidence keywords in thinking
+    """
+    if model == 'baseline':
+        return 0, {}
+
+    score = 0
+    reasons = {}
+
+    # Signal 1
+    s1, r1 = score_empty_signal(entry, is_ground)
+    score += s1
+    if r1:
+        reasons['signal1_empty'] = r1
+
+    # Signals 2 + 5 (text)
+    s2, s5, kw_matches = score_text_signals(thinking_content)
+    score += s2
+    if s2 > 0:
+        reasons['signal2_high_kw'] = [m[1] for m in kw_matches if m[0] == 'HIGH']
+
+    # Signal 3 (grounding only)
+    if is_ground:
+        s3, r3 = signal3_bbox_diverge(entry, proposals)
+        score += s3
+        if r3:
+            reasons['signal3_bbox_diverge'] = r3
+
+    # Signal 4 (referring only)
+    if not is_ground:
+        s4, r4 = signal4_zoom_diverge(entry, annot_entry)
+        score += s4
+        if r4:
+            reasons['signal4_zoom_diverge'] = r4
+
+    # Signal 5
+    score += s5
+    if s5 > 0:
+        reasons['signal5_med_kw'] = [m[1] for m in kw_matches if m[0] == 'MED']
+
+    return score, reasons
+
+
 if __name__ == "__main__":
     setup_output_dirs()
     verify_paths()
     _test_utils()
 
+    # --- Data loading checks (from Task 3) ---
     print("Loading hico_ground data...")
     hg = load_ground_results("hico_ground")
-    print(f"  baseline entries: {len(hg['baseline'])}")
-    print(f"  sft entries:      {len(hg['sft'])}")
-    print(f"  grpo entries:     {len(hg['grpo'])}")
-    print(f"  sft_thinking keys: {len(hg['sft_thinking'])}")
-    print(f"  grpo_thinking keys: {len(hg['grpo_thinking'])}")
+    print(f"  baseline entries: {len(hg['baseline'])}, sft: {len(hg['sft'])}, grpo: {len(hg['grpo'])}")
 
     print("Loading hico_refer data...")
     hr = load_refer_results("hico_refer")
-    print(f"  baseline triplets: {len(hr['baseline'])}")
-    print(f"  sft triplets:      {len(hr['sft'])}")
-    print(f"  grpo triplets:     {len(hr['grpo'])}")
+    print(f"  baseline triplets: {len(hr['baseline'])}, sft: {len(hr['sft'])}, grpo: {len(hr['grpo'])}")
 
-    print("Loading swig_ground data...")
-    sg = load_ground_results("swig_ground")
-    print(f"  baseline entries: {len(sg['baseline'])}")
-    print(f"  sft entries:      {len(sg['sft'])}")
-    print(f"  grpo entries:     {len(sg['grpo'])}")
-
-    print("Loading swig_refer data...")
-    sr = load_refer_results("swig_refer")
-    print(f"  baseline triplets: {len(sr['baseline'])}")
-    print(f"  sft triplets:      {len(sr['sft'])}")
-    print(f"  grpo triplets:     {len(sr['grpo'])}")
-
-    # Quick proposal check
     props = load_proposals("HICO_test2015_00000001")
-    print(f"Proposals for HICO_test2015_00000001: {len(props)} entries")
-    assert len(props) > 0, "Expected proposals for test image"
+    assert len(props) > 0
+    print(f"Proposals OK: {len(props)} entries")
 
-    # Quick annotation check
     annots_list, annots_idx = load_annotation("hico_ground")
-    print(f"hico_ground annotation entries: {len(annots_list)}")
+    print(f"hico_ground annotation: {len(annots_list)} entries")
 
-    print("Data loading OK")
+    # --- Scorer tests (Tasks 4 + 5) ---
+    # Signal 1: empty answer
+    fake_ground_empty = {"answer": None, "num_pred_pairs": 0}
+    s1, r1 = score_empty_signal(fake_ground_empty, is_ground=True)
+    assert s1 == 5 and "answer=None" in r1, f"Signal1 failed: s1={s1}, r1={r1}"
+    s1_ref, _ = score_empty_signal(fake_ground_empty, is_ground=False)
+    assert s1_ref == 0, "Signal1 should not fire for referring"
+
+    # Signal 2: high-precision keyword
+    s2, s5, kws = score_text_signals("The proposal mislabeled as 'pirate' is wrong. Not in the proposal.")
+    assert s2 >= 4, f"Signal2 failed: s2={s2}"
+
+    # Signal 3: bbox divergence
+    fake_entry = {"answer": '[{"bbox_2d": [800, 800, 950, 950], "label": "person"}]', "num_pred_pairs": 1}
+    fake_proposals = [{"bbox_1000": [0, 0, 100, 100], "class_name": "person", "confidence": 0.9,
+                       "bbox": [0, 0, 64, 48]}]
+    s3, r3 = signal3_bbox_diverge(fake_entry, fake_proposals)
+    assert s3 == 3, f"Signal3 failed: s3={s3}"
+    s3_no_prop, _ = signal3_bbox_diverge(fake_entry, [])
+    assert s3_no_prop == 0, "Signal3 should return 0 with empty proposals"
+
+    # Signal 4: zoom divergence
+    fake_tc_entry = {"tool_calls": [{"name": "zoom_in", "bbox": [800, 800, 1000, 1000]}], "thinking_content": ""}
+    fake_annot = {"width": 640, "height": 480, "boxes": [[10, 10, 50, 50], [60, 60, 100, 100]],
+                  "person_box_idx": 0, "object_box_idx": 1}
+    s4, r4 = signal4_zoom_diverge(fake_tc_entry, fake_annot)
+    assert s4 == 3, f"Signal4 failed: s4={s4}"
+    # Zoom that overlaps with person box should NOT trigger
+    overlap_entry = {"tool_calls": [{"name": "zoom_in", "bbox": [0, 0, 200, 200]}], "thinking_content": ""}
+    s4_overlap, _ = signal4_zoom_diverge(overlap_entry, fake_annot)
+    assert s4_overlap == 0, f"Signal4 should not fire when zoom overlaps with boxes: s4={s4_overlap}"
+
+    # score_sample: baseline always returns 0
+    baseline_entry = {"answer": None, "num_pred_pairs": 0, "tool_calls": []}
+    s_base, r_base = score_sample(baseline_entry, "mislabeled as wrong", is_ground=True, model='baseline')
+    assert s_base == 0 and r_base == {}, f"Baseline should always score 0: s={s_base}"
+
+    # score_sample: full grounding sample with multiple signals
+    full_entry = {"answer": '[{"bbox_2d": [800, 800, 950, 950], "label": "person"}]',
+                  "num_pred_pairs": 1}
+    thinking_with_kw = "The proposal mislabeled as 'pirate' is wrong. Not in the proposal."
+    s_full, r_full = score_sample(full_entry, thinking_with_kw, is_ground=True,
+                                  proposals=fake_proposals, model='sft')
+    assert s_full >= WRONG_PROPOSAL_THRESHOLD, f"Expected score >= {WRONG_PROPOSAL_THRESHOLD}, got {s_full}"
+    print(f"score_sample full test: score={s_full}, reasons={list(r_full.keys())}")
+
+    print("All scorer tests passed")
     print("Setup complete.")
