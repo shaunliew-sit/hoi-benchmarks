@@ -382,7 +382,7 @@ def load_ground_results(task):
         for entry in data:
             fn = entry.get('file_name', '')
             aoid = entry.get('action_object_id',
-                             f"{entry.get('action', '')}_{entry.get('object', entry.get('object_category', ''))}")
+                             f"{entry.get('action', '')}_{entry.get('object_category', entry.get('object', ''))}")
             idx[(fn, aoid)] = entry
         return idx
 
@@ -416,10 +416,15 @@ def load_refer_results(task):
 
     def _index(json_path):
         idx = {}
+        fallback_counter = 0
         with open(json_path) as f:
             data = json.load(f)
         for entry in data:
-            tid = entry.get('triplet_id', len(idx))
+            if 'triplet_id' in entry:
+                tid = entry['triplet_id']
+            else:
+                tid = fallback_counter
+                fallback_counter += 1
             idx[tid] = entry
         return idx
 
