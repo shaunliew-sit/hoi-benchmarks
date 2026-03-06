@@ -321,8 +321,182 @@ def _test_utils():
     print("_test_utils: all assertions passed")
 
 
+# ── Data loaders ───────────────────────────────────────────────────────────────
+
+def load_proposals(image_stem):
+    """
+    Load proposals for an image by its stem (filename without extension).
+    Returns list of {class_name, bbox (pixel), bbox_1000, confidence} or [] if missing.
+    """
+    p = PROPOSALS_DIR / f"{image_stem}.json"
+    if not p.exists():
+        return []
+    with open(p) as f:
+        data = json.load(f)
+    return data.get('proposals', [])
+
+
+def load_thinking_jsonl(path):
+    """
+    Load a thinking JSONL file into a dict keyed by (file_name, action).
+    Each line: {"file_name":..., "action":..., "thinking":...}
+    Returns {} if path is None or file doesn't exist.
+    """
+    if path is None or not Path(path).exists():
+        return {}
+    result = {}
+    with open(path) as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                obj = json.loads(line)
+                key = (obj.get('file_name', ''), obj.get('action', ''))
+                result[key] = obj.get('thinking', '')
+            except json.JSONDecodeError:
+                continue
+    return result
+
+
+def load_ground_results(task):
+    """
+    Load grounding results for all 3 models for a given task (hico_ground or swig_ground).
+    Returns dict:
+      {
+        "baseline": {(file_name, action_object_id): entry, ...},
+        "sft":      {(file_name, action_object_id): entry, ...},
+        "grpo":     {(file_name, action_object_id): entry, ...},
+        "sft_thinking":  {(file_name, action): thinking_str},
+        "grpo_thinking": {(file_name, action): thinking_str},
+      }
+    Baseline entry has keys: file_name, action, object, action_object_id, prompt, thinking_content, generated_text, matches_per_threshold
+    SFT/GRPO entry has keys: file_name, action, object, num_gt_pairs, num_pred_pairs, tool_calls, answer, matches_per_threshold
+    """
+    paths = RESULTS[task]
+
+    def _index(json_path):
+        idx = {}
+        with open(json_path) as f:
+            data = json.load(f)
+        for entry in data:
+            fn = entry.get('file_name', '')
+            aoid = entry.get('action_object_id',
+                             f"{entry.get('action', '')}_{entry.get('object', entry.get('object_category', ''))}")
+            idx[(fn, aoid)] = entry
+        return idx
+
+    baseline_idx = _index(paths['baseline'])
+    sft_idx      = _index(paths['sft'])
+    grpo_idx     = _index(paths['grpo'])
+
+    return {
+        "baseline": baseline_idx,
+        "sft":      sft_idx,
+        "grpo":     grpo_idx,
+        "sft_thinking":  load_thinking_jsonl(paths.get('sft_think')),
+        "grpo_thinking": load_thinking_jsonl(paths.get('grpo_think')),
+    }
+
+
+def load_refer_results(task):
+    """
+    Load action referring results for all 3 models for a given task (hico_refer or swig_refer).
+    Returns dict:
+      {
+        "baseline": {triplet_id: entry, ...},
+        "sft":      {triplet_id: entry, ...},
+        "grpo":     {triplet_id: entry, ...},
+        "sft_thinking":  {(file_name, action): thinking_str},
+        "grpo_thinking": {(file_name, action): thinking_str},
+      }
+    Entry keys: triplet_id, file_name, ground_truth, prediction, tool_calls, exact_match, thinking_content
+    """
+    paths = RESULTS[task]
+
+    def _index(json_path):
+        idx = {}
+        with open(json_path) as f:
+            data = json.load(f)
+        for entry in data:
+            tid = entry.get('triplet_id', len(idx))
+            idx[tid] = entry
+        return idx
+
+    baseline_idx = _index(paths['baseline'])
+    sft_idx      = _index(paths['sft'])
+    grpo_idx     = _index(paths['grpo'])
+
+    return {
+        "baseline": baseline_idx,
+        "sft":      sft_idx,
+        "grpo":     grpo_idx,
+        "sft_thinking":  load_thinking_jsonl(paths.get('sft_think')),
+        "grpo_thinking": load_thinking_jsonl(paths.get('grpo_think')),
+    }
+
+
+def load_annotation(task):
+    """
+    Load annotation for a task.
+    Grounding: returns (list, dict) where dict is keyed by (file_name, action_object_id).
+    Referring: returns (list, dict) where dict is keyed by triplet_id (positional index).
+    """
+    with open(ANNOT_FILES[task]) as f:
+        annots = json.load(f)
+
+    if 'ground' in task:
+        idx = {}
+        for entry in annots:
+            fn = entry['file_name']
+            aoid = entry.get('action_object_id',
+                             f"{entry.get('action', '')}_{entry.get('object_category', '')}")
+            idx[(fn, aoid)] = entry
+        return annots, idx
+    else:
+        idx = {i: entry for i, entry in enumerate(annots)}
+        return annots, idx
+
+
 if __name__ == "__main__":
     setup_output_dirs()
     verify_paths()
     _test_utils()
+
+    print("Loading hico_ground data...")
+    hg = load_ground_results("hico_ground")
+    print(f"  baseline entries: {len(hg['baseline'])}")
+    print(f"  sft entries:      {len(hg['sft'])}")
+    print(f"  grpo entries:     {len(hg['grpo'])}")
+    print(f"  sft_thinking keys: {len(hg['sft_thinking'])}")
+    print(f"  grpo_thinking keys: {len(hg['grpo_thinking'])}")
+
+    print("Loading hico_refer data...")
+    hr = load_refer_results("hico_refer")
+    print(f"  baseline triplets: {len(hr['baseline'])}")
+    print(f"  sft triplets:      {len(hr['sft'])}")
+    print(f"  grpo triplets:     {len(hr['grpo'])}")
+
+    print("Loading swig_ground data...")
+    sg = load_ground_results("swig_ground")
+    print(f"  baseline entries: {len(sg['baseline'])}")
+    print(f"  sft entries:      {len(sg['sft'])}")
+    print(f"  grpo entries:     {len(sg['grpo'])}")
+
+    print("Loading swig_refer data...")
+    sr = load_refer_results("swig_refer")
+    print(f"  baseline triplets: {len(sr['baseline'])}")
+    print(f"  sft triplets:      {len(sr['sft'])}")
+    print(f"  grpo triplets:     {len(sr['grpo'])}")
+
+    # Quick proposal check
+    props = load_proposals("HICO_test2015_00000001")
+    print(f"Proposals for HICO_test2015_00000001: {len(props)} entries")
+    assert len(props) > 0, "Expected proposals for test image"
+
+    # Quick annotation check
+    annots_list, annots_idx = load_annotation("hico_ground")
+    print(f"hico_ground annotation entries: {len(annots_list)}")
+
+    print("Data loading OK")
     print("Setup complete.")
