@@ -696,7 +696,7 @@ def score_all_samples(task, results, annots_list, annots_idx):
             # Get thinking content (prefer inline field, fall back to JSONL map)
             if is_ground:
                 action = entry.get('action', '')
-                thinking = think_map.get((fn, action), '') or entry.get('thinking_content', '')
+                thinking = entry.get('thinking_content', '') or think_map.get((fn, action), '')
             else:
                 thinking = entry.get('thinking_content', '')
                 if not thinking:
