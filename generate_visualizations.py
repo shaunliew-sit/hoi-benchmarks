@@ -1068,6 +1068,30 @@ def generate_comparison_referring(task, key, results, annots_idx, output_dir):
 
 # ── Type B: 3-panel proposals|prediction|GT ────────────────────────────────────
 
+def get_zoom_crops(img, tool_calls):
+    """
+    Re-generate zoom crop images from bbox coords stored in tool_calls.
+    Uses the same formula as the evaluation script: bbox in [0,1000] → pixel crop.
+    Returns list of (turn, bbox_1000, PIL.Image) for each zoom_in call.
+    """
+    W, H = img.size
+    crops = []
+    for tc in tool_calls:
+        if tc.get('name') != 'zoom_in':
+            continue
+        bbox = tc.get('bbox', [])
+        if len(bbox) != 4:
+            continue
+        x1 = max(0, int(bbox[0] * W / 1000))
+        y1 = max(0, int(bbox[1] * H / 1000))
+        x2 = min(W, int(bbox[2] * W / 1000))
+        y2 = min(H, int(bbox[3] * H / 1000))
+        if x2 <= x1 or y2 <= y1:
+            continue
+        crops.append((tc.get('turn', len(crops)), bbox, img.crop((x1, y1, x2, y2))))
+    return crops
+
+
 def generate_detail_figure(task, key, model_label, result_key,
                             results, annots_idx, output_dir):
     """Type B: 3-panel detail figure (Proposals | Prediction | GT) for SFT or GRPO."""
@@ -1136,31 +1160,55 @@ def generate_detail_figure(task, key, model_label, result_key,
         pred_title  = f"{model_label}\nPred: {pred}"
         fig_suptitle = f"{fn}  |  GT: {gt_action}  |  {model_label}"
 
-    fig, axes = plt.subplots(1, 3, figsize=(18, 6))
+    # Compute zoom crops for SFT/GRPO (baseline has no tool_calls)
+    tool_calls = entry.get('tool_calls', [])
+    zoom_crops = get_zoom_crops(img, tool_calls) if result_key != 'baseline' else []
+    n_crops = len(zoom_crops)
+
+    # Build layout: row 0 = Proposals|Prediction|GT, row 1 = zoom crops (if any)
+    n_cols = max(3, n_crops)
+    if n_crops > 0:
+        fig = plt.figure(figsize=(6 * n_cols, 12), constrained_layout=True)
+        import matplotlib.gridspec as gridspec
+        gs = gridspec.GridSpec(2, n_cols, figure=fig, hspace=0.45, wspace=0.3)
+        ax_prop = fig.add_subplot(gs[0, 0])
+        ax_pred = fig.add_subplot(gs[0, 1])
+        ax_gt   = fig.add_subplot(gs[0, 2])
+        crop_axes = [fig.add_subplot(gs[1, i]) for i in range(n_crops)]
+    else:
+        fig, (ax_prop, ax_pred, ax_gt) = plt.subplots(1, 3, figsize=(18, 6))
+        crop_axes = []
+
     fig.suptitle(fig_suptitle, fontsize=9, y=1.01)
 
     # Panel 1: Proposals
-    draw_bboxes_on_ax(axes[0], img_arr, prop_groups,
+    draw_bboxes_on_ax(ax_prop, img_arr, prop_groups,
                       f"Proposals ({len(proposals)} detected)", fontsize=7)
 
     # Panel 2: Prediction + thinking caption
-    think_caption = wrap_thinking(thinking, max_lines=3, line_width=55)
-    pred_full = pred_title + (f"\n{think_caption}" if thinking else "")
-    draw_bboxes_on_ax(axes[1], img_arr, pred_groups, pred_full, fontsize=7)
+    think_caption = wrap_thinking(thinking, max_lines=3, line_width=55) if thinking else ''
+    pred_full = pred_title + (f"\n{think_caption}" if think_caption else "")
+    draw_bboxes_on_ax(ax_pred, img_arr, pred_groups, pred_full, fontsize=7)
 
     # Panel 3: GT
-    draw_bboxes_on_ax(axes[2], img_arr, gt_groups, gt_title, fontsize=8)
+    draw_bboxes_on_ax(ax_gt, img_arr, gt_groups, gt_title, fontsize=8)
+
+    # Row 2: zoom crops
+    for ax, (turn, bbox, crop_img) in zip(crop_axes, zoom_crops):
+        ax.imshow(np.array(crop_img))
+        ax.set_title(f"Turn {turn}: zoom_in\n{bbox}", fontsize=7)
+        ax.axis('off')
 
     # Tool call sequence as figure footer
-    tool_calls = entry.get('tool_calls', [])
     if tool_calls:
         tool_summary = " -> ".join(
             f"zoom_in({tc.get('bbox','')})" if tc.get('name') == 'zoom_in' else tc.get('name','?')
             for tc in tool_calls
         )
-        fig.text(0.5, -0.02, f"Tools: {tool_summary[:130]}", ha='center', fontsize=6, color='gray')
+        fig.text(0.5, -0.02, f"Tools: {tool_summary[:160]}", ha='center', fontsize=6, color='gray')
 
-    plt.tight_layout()
+    if n_crops == 0:
+        plt.tight_layout()
 
     safe_name = Path(fn).stem
     if is_ground:
