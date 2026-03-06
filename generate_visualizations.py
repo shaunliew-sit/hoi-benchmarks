@@ -527,8 +527,12 @@ def score_empty_signal(entry, is_ground):
         reasons.append("answer=None")
     if entry.get('num_pred_pairs', -1) == 0:
         reasons.append("num_pred_pairs=0")
-    if isinstance(entry.get('answer'), str) and entry['answer'].strip() in ('', '[]'):
-        reasons.append("answer='[]'")
+    if isinstance(entry.get('answer'), str):
+        stripped = entry['answer'].strip()
+        if stripped == '':
+            reasons.append("answer=empty_string")
+        elif stripped == '[]':
+            reasons.append("answer='[]'")
     return (5 if reasons else 0), reasons
 
 
@@ -538,7 +542,7 @@ def signal3_bbox_diverge(entry, proposals):
     with ALL proposal bboxes_1000.
     Returns (score, list_of_diverged_info) or (0, []).
     """
-    if not proposals:
+    if proposals is None or len(proposals) == 0:
         return 0, []
 
     answer = entry.get('answer')
