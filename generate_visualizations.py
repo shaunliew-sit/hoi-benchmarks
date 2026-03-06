@@ -119,11 +119,12 @@ def verify_paths():
 def scale_to_pixel(bbox_1000, width, height):
     """Convert [0,1000]-normalized bbox to pixel coords. Returns [x1,y1,x2,y2]."""
     x1, y1, x2, y2 = bbox_1000
+    # x2/y2 clamped to width/height (exclusive-end convention for drawing, not array indexing)
     return [
         max(0, int(x1 * width / 1000)),
         max(0, int(y1 * height / 1000)),
-        min(width,  int(x2 * width / 1000)),
-        min(height, int(y2 * height / 1000)),
+        min(width - 1,  int(x2 * width / 1000)),
+        min(height - 1, int(y2 * height / 1000)),
     ]
 
 
@@ -174,13 +175,15 @@ def parse_ground_answer_sft(answer, width, height):
                  o.get('label', '').lower() in ('person', 'human', 'man', 'woman', 'player', 'rider', 'athlete')),
                 None
             )
-            obj_entry = next(
-                (o for o in objs if isinstance(o, dict) and o is not person_entry
-                 and 'bbox_2d' in o),
-                None
-            )
+            # Fallback: if no person label found, treat first as person, second as object
             if person_entry is None and len(objs) >= 2:
                 person_entry, obj_entry = objs[0], objs[1]
+            else:
+                obj_entry = next(
+                    (o for o in objs if isinstance(o, dict) and o is not person_entry
+                     and 'bbox_2d' in o),
+                    None
+                )
             if person_entry and obj_entry:
                 p_bb = person_entry.get('bbox_2d')
                 o_bb = obj_entry.get('bbox_2d')
@@ -202,7 +205,7 @@ def parse_ground_answer_baseline(generated_text, width, height):
     """
     if not generated_text:
         return []
-    text = re.sub(r'```[a-z]*', '', generated_text).strip()
+    text = re.sub(r'```\w*', '', generated_text).strip()
     match = re.search(r'\[.*\]', text, re.DOTALL)
     if not match:
         return []
