@@ -13,10 +13,10 @@
 # Examples:
 #   bash run_swig_ground_proposals_eval.sh 0
 #   bash run_swig_ground_proposals_eval.sh 0 "Qwen/Qwen3-VL-8B-Instruct"
-#   VERBOSE=1 bash run_swig_ground_proposals_eval.sh 0
-#   MAX_IMAGES=10 bash run_swig_ground_proposals_eval.sh 0
-#   WANDB=1 VERBOSE=1 bash run_swig_ground_proposals_eval.sh 0
-#   RESUME=1 bash run_swig_ground_proposals_eval.sh 0
+#   VLLM_URL=http://vllm-server:8000  VERBOSE=1 bash run_swig_ground_proposals_eval.sh 0
+#   VLLM_URL=http://vllm-server:8000  MAX_IMAGES=10 VERBOSE=1 bash run_swig_ground_proposals_eval.sh 0
+#   VLLM_URL=http://vllm-server:8000  WANDB=1 VERBOSE=1 bash run_swig_ground_proposals_eval.sh 0
+#   VLLM_URL=http://vllm-server:8000  RESUME=1 bash run_swig_ground_proposals_eval.sh 0
 #
 # Environment Variables:
 #   VERBOSE=1         Show per-image results
@@ -41,7 +41,7 @@ set -e  # Exit on error
 
 # Configuration with defaults
 GPU_ID="${1:-0}"
-MODEL_NAME="${2:-Qwen/Qwen3-VL-8B-Thinking}"
+MODEL_NAME="${2:-Qwen3-VL-4B-Instruct}"
 OUTPUT_DIR="${3:-results-proposals/swig_ground_proposals}"
 
 # Set GPU (handle both "0" and "cuda:0" formats)
@@ -62,13 +62,13 @@ TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 LOG_FILE="$OUTPUT_DIR/swig_ground_proposals_evaluation_${TIMESTAMP}.log"
 
 # SWIG dataset paths
-SWIG_ROOT="data/swig_hoi"
+SWIG_ROOT="/workspace/hoi/data/swig_hoi"
 IMG_PREFIX="${SWIG_ROOT}/images_512"
-ANN_FILE="data/benchmarks_simplified/swig_ground_test_simplified.json"
+ANN_FILE="/workspace/hoi/data/benchmarks_simplified/swig_ground_test_simplified.json"
 RESULT_FILE="${OUTPUT_DIR}/swig_ground_proposals_results_${TIMESTAMP}.json"
 
 # Proposals directory
-PROPOSALS_DIR="${PROPOSALS_DIR:-../../hoi-dataset-curation/output/test_proposals}"
+PROPOSALS_DIR="${PROPOSALS_DIR:-/workspace/hoi/checkpoints/test_proposals}"
 
 if [ -z "$VLLM_URL" ]; then
     echo "ERROR: VLLM_URL is required (for example: http://localhost:8000)"
