@@ -8,15 +8,14 @@
 # Metrics: METEOR, CIDEr, BLEU, ROUGE-L
 #
 # Usage:
-#   bash run_swig_action_proposals_eval.sh [GPU] [MODEL] [OUTPUT_DIR]
+#   bash run_swig_action_proposals_eval.sh [MODEL] [OUTPUT_DIR]
 #
 # Examples:
-#   bash run_swig_action_proposals_eval.sh 0
-#   bash run_swig_action_proposals_eval.sh 0 "Qwen/Qwen3-VL-8B-Instruct"
-#   VLLM_URL=http://vllm-server:8000  VERBOSE=1 bash run_swig_action_proposals_eval.sh 0
-#   VLLM_URL=http://vllm-server:8000  MAX_IMAGES=10 VERBOSE=1 bash run_swig_action_proposals_eval.sh 0
-#   VLLM_URL=http://vllm-server:8000  WANDB=1 VERBOSE=1 bash run_swig_action_proposals_eval.sh 0
-#   VLLM_URL=http://vllm-server:8000  RESUME=1 bash run_swig_action_proposals_eval.sh 0
+#   VLLM_URL=http://vllm-server:8000 bash run_swig_action_proposals_eval.sh
+#   VLLM_URL=http://vllm-server:8000 bash run_swig_action_proposals_eval.sh "Qwen/Qwen3-VL-8B-Instruct"
+#   VLLM_URL=http://vllm-server:8000 MAX_IMAGES=10 VERBOSE=1 bash run_swig_action_proposals_eval.sh
+#   VLLM_URL=http://vllm-server:8000 WANDB=1 VERBOSE=1 bash run_swig_action_proposals_eval.sh
+#   VLLM_URL=http://vllm-server:8000 RESUME=1 bash run_swig_action_proposals_eval.sh
 #
 # Environment Variables:
 #   VERBOSE=1         Show per-triplet results + action visualizations
@@ -38,19 +37,8 @@
 set -eo pipefail  # Exit on error; pipefail ensures Python errors aren't masked by tee
 
 # Configuration with defaults
-GPU_ID="${1:-0}"
-MODEL_NAME="${2:-Qwen3-VL-4B-Instruct}"
-OUTPUT_DIR="${3:-results-proposals/swig_action_proposals}"
-
-# Set GPU (handle both "0" and "cuda:0" formats)
-if [[ "$GPU_ID" == cuda:* ]]; then
-    DEVICE_ARG="$GPU_ID"
-    GPU_NUM="${GPU_ID#cuda:}"
-    export CUDA_VISIBLE_DEVICES="$GPU_NUM"
-else
-    DEVICE_ARG="cuda:$GPU_ID"
-    export CUDA_VISIBLE_DEVICES="$GPU_ID"
-fi
+MODEL_NAME="${1:-Qwen3-VL-4B-Instruct}"
+OUTPUT_DIR="${2:-results-proposals/swig_action_proposals}"
 
 # Create output directory
 mkdir -p "$OUTPUT_DIR"
@@ -79,22 +67,9 @@ if ! curl -s "${VLLM_URL}/health" > /dev/null 2>&1; then
     exit 1
 fi
 
-# GPU availability check
-if command -v nvidia-smi &> /dev/null; then
-    echo "GPU Information:"
-    GPU_INFO=$(nvidia-smi --query-gpu=index,name,memory.total,memory.free --format=csv,noheader 2>/dev/null) || true
-    if [ -n "$GPU_INFO" ]; then
-        printf '%s\n' "$GPU_INFO" | nl -v 0
-    else
-        echo "  GPU info unavailable in this container"
-    fi
-    echo ""
-fi
-
 echo "========================================================================"
 echo "SWIG-HOI Action Referring Evaluation (Qwen3VL + Proposals)"
 echo "========================================================================"
-echo "GPU:           $GPU_ID (Device: $DEVICE_ARG)"
 echo "Model:         $MODEL_NAME"
 echo "Annotation:    $ANN_FILE"
 echo "Images:        $IMG_PREFIX"
@@ -189,7 +164,6 @@ echo ""
 # Build evaluation command
 EVAL_CMD="python3 eval_swig_action_referring_proposals_qwen3vl.py \
     --model-name \"$MODEL_NAME\" \
-    --device $DEVICE_ARG \
     --vllm-url \"$VLLM_URL\" \
     --ann-file $ANN_FILE \
     --img-prefix $IMG_PREFIX \

@@ -409,7 +409,6 @@ def eval_model(args):
     print("SWIG-HOI Action Referring Evaluation (Qwen3VL + Proposals)")
     print("=" * 80)
     print(f"Model:       {args.model_name}")
-    print(f"Device:      {args.device}")
     print(f"vLLM URL:    {args.vllm_url}")
     print(f"Images:      {args.img_prefix}")
     print(f"Annotations: {args.ann_file}")
@@ -436,7 +435,6 @@ def eval_model(args):
                 name=args.wandb_run_name or f"swig_action_proposals_qwen3vl_{timestamp}",
                 config={
                     "model": args.model_name,
-                    "device": args.device,
                     "vllm_url": args.vllm_url,
                     "dataset": "SWIG-HOI-Action",
                     "task": "action_referring",
@@ -872,12 +870,6 @@ def eval_model(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="SWIG-HOI Action Referring Evaluation with Qwen3VL + Proposals")
     parser.add_argument("--model-name", type=str, default="Qwen/Qwen3-VL-8B-Instruct", help="Qwen3VL model name")
-    parser.add_argument(
-        "--device",
-        type=str,
-        default="auto",
-        help="Device to use (kept for compatibility; inference now uses the vLLM endpoint)",
-    )
     parser.add_argument("--ann-file", type=str, required=True, help="Path to SWIG action referring annotation file")
     parser.add_argument("--img-prefix", type=str, required=True, help="Path to SWIG images directory (images_512)")
     parser.add_argument("--pred-file", type=str, required=True, help="Output file for predictions")

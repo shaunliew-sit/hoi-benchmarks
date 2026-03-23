@@ -663,7 +663,6 @@ def eval_model(args):
     print("HICO-DET Grounding Evaluation (Qwen3VL + Proposals)")
     print("=" * 80)
     print(f"Model:         {args.model_name}")
-    print(f"Device:        {args.device}")
     print(f"vLLM URL:      {args.vllm_url}")
     print(f"Annotation:    {args.ann_file}")
     print(f"Images:        {args.img_prefix}")
@@ -695,7 +694,6 @@ def eval_model(args):
                 name=args.wandb_run_name or f"hico_ground_proposals_{timestamp}",
                 config={
                     "model": args.model_name,
-                    "device": args.device,
                     "vllm_url": args.vllm_url,
                     "dataset": "HICO-DET-Ground",
                     "task": "multi_pair_grounding",
@@ -1199,12 +1197,6 @@ def eval_model(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="HICO-DET Grounding Evaluation with Qwen3VL + Proposals")
     parser.add_argument("--model-name", type=str, default="Qwen/Qwen3-VL-8B-Instruct", help="Qwen3VL model name")
-    parser.add_argument(
-        "--device",
-        type=str,
-        default="auto",
-        help="Device to use (kept for compatibility; inference now uses the vLLM endpoint)",
-    )
     parser.add_argument(
         "--ann-file",
         type=str,
