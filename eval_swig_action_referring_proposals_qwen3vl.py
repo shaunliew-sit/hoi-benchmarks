@@ -280,42 +280,102 @@ def clean_action_response(response_text):
     return response.lower().strip()
 
 
+_PROPOSAL_COLORS = [
+    (255, 165, 0),   # orange
+    (148, 0, 211),   # violet
+    (0, 206, 209),   # dark turquoise
+    (255, 20, 147),  # deep pink
+    (50, 205, 50),   # lime green
+    (255, 215, 0),   # gold
+    (0, 191, 255),   # deep sky blue
+    (220, 20, 60),   # crimson
+    (127, 255, 0),   # chartreuse
+    (255, 99, 71),   # tomato
+]
+
+
 def visualize_action_triplet(
-    image_path, person_bbox, object_bbox, predicted_action, gt_action, object_category, output_path
+    image_path, person_bbox, object_bbox, predicted_action, gt_action, object_category, output_path,
+    proposals=None
 ):
-    """Visualize action referring result."""
+    """Visualize action referring result as a 3-panel image: Query | Proposals | Result."""
     image = Image.open(image_path).convert("RGB")
-    draw = ImageDraw.Draw(image)
+    img_w, img_h = image.size
 
     try:
-        font = ImageFont.truetype("/System/Library/Fonts/Helvetica.ttc", 20)
-        font_small = ImageFont.truetype("/System/Library/Fonts/Helvetica.ttc", 14)
+        font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 18)
+        font_small = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 13)
     except Exception:
-        font = ImageFont.load_default()
-        font_small = ImageFont.load_default()
+        try:
+            font = ImageFont.truetype("/System/Library/Fonts/Helvetica.ttc", 20)
+            font_small = ImageFont.truetype("/System/Library/Fonts/Helvetica.ttc", 14)
+        except Exception:
+            font = ImageFont.load_default()
+            font_small = ImageFont.load_default()
 
     px1, py1, px2, py2 = person_bbox
-    draw.rectangle([px1, py1, px2, py2], outline="red", width=4)
-    draw.text((px1, py1 - 25), "Person", fill="red", font=font_small)
-
     ox1, oy1, ox2, oy2 = object_bbox
-    draw.rectangle([ox1, oy1, ox2, oy2], outline="blue", width=4)
-    draw.text((ox1, oy1 - 25), object_category.capitalize(), fill="blue", font=font_small)
-
     person_center = ((px1 + px2) / 2, (py1 + py2) / 2)
     object_center = ((ox1 + ox2) / 2, (oy1 + oy2) / 2)
-    draw.line([person_center, object_center], fill="green", width=3)
 
-    draw.text((10, 10), f"Predicted: {predicted_action}", fill="white", font=font)
-    draw.text((10, 40), f"GT: {gt_action}", fill="yellow", font=font)
+    # ── Panel 1: Query (person + object bboxes) ──────────────────────────
+    query_img = image.copy()
+    q_draw = ImageDraw.Draw(query_img)
+    q_draw.rectangle([px1, py1, px2, py2], outline="red", width=4)
+    q_draw.text((px1, max(0, py1 - 18)), "Person", fill="red", font=font_small)
+    q_draw.rectangle([ox1, oy1, ox2, oy2], outline=(0, 120, 255), width=4)
+    q_draw.text((ox1, max(0, oy1 - 18)), object_category.capitalize(), fill=(0, 120, 255), font=font_small)
+    q_draw.line([person_center, object_center], fill=(0, 200, 0), width=3)
 
+    # ── Panel 2: Proposals ────────────────────────────────────────────────
+    prop_img = image.copy()
+    p_draw = ImageDraw.Draw(prop_img)
+    if proposals:
+        capped = proposals[:20]
+        for i, prop in enumerate(capped):
+            color = _PROPOSAL_COLORS[i % len(_PROPOSAL_COLORS)]
+            bx1, by1, bx2, by2 = prop["bbox_1000"]
+            bx1 = int(bx1 * img_w / 1000)
+            by1 = int(by1 * img_h / 1000)
+            bx2 = int(bx2 * img_w / 1000)
+            by2 = int(by2 * img_h / 1000)
+            p_draw.rectangle([bx1, by1, bx2, by2], outline=color, width=2)
+            label = f"{prop['class_name']} {prop['confidence']:.0%}"
+            p_draw.text((bx1 + 2, max(0, by1 - 14)), label, fill=color, font=font_small)
+        count_text = f"{len(capped)}/{len(proposals)} proposals shown"
+        p_draw.text((5, 5), count_text, fill=(255, 255, 255), font=font_small)
+    else:
+        p_draw.text((10, img_h // 2 - 10), "No proposals", fill=(128, 128, 128), font=font)
+
+    # ── Panel 3: Result (prediction vs GT with match indicator) ──────────
+    result_img = query_img.copy()
+    r_draw = ImageDraw.Draw(result_img)
     match = predicted_action.lower().strip() == gt_action.lower().strip()
-    match_text = "MATCH" if match else "MISMATCH"
-    match_color = "green" if match else "red"
-    draw.text((10, 70), match_text, fill=match_color, font=font)
+    match_color = (0, 220, 0) if match else (255, 50, 50)
+    r_draw.text((10, 10), f"Pred: {predicted_action}", fill=(255, 255, 255), font=font)
+    r_draw.text((10, 35), f"GT:   {gt_action}", fill=(255, 220, 0), font=font)
+    r_draw.text((10, 60), "MATCH" if match else "MISMATCH", fill=match_color, font=font)
+
+    # ── Compose 3-panel image ─────────────────────────────────────────────
+    header_h = 30
+    total_w = img_w * 3
+    total_h = img_h + header_h
+    final = Image.new("RGB", (total_w, total_h), (220, 220, 220))
+    hdr_draw = ImageDraw.Draw(final)
+
+    prop_count = len(proposals) if proposals else 0
+    titles = ["Query", f"Proposals ({prop_count})", "Result"]
+    for col, title in enumerate(titles):
+        hdr_draw.text((col * img_w + 10, 7), title, fill=(0, 0, 0), font=font_small)
+        if col > 0:
+            hdr_draw.line([(col * img_w, 0), (col * img_w, total_h)], fill=(160, 160, 160), width=2)
+
+    final.paste(query_img, (0, header_h))
+    final.paste(prop_img, (img_w, header_h))
+    final.paste(result_img, (img_w * 2, header_h))
 
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    image.save(output_path)
+    final.save(output_path)
 
 
 def normalize_sample(sample):
@@ -604,6 +664,7 @@ def eval_model(args):
                     gt_action,
                     object_category or "object",
                     viz_path,
+                    proposals=proposals,
                 )
 
                 if use_wandb:

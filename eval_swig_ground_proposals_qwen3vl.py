@@ -286,8 +286,23 @@ def match_pairs_greedy(pred_pairs, gt_pairs, iou_threshold=0.5):
     return matches, unmatched_preds, unmatched_gts
 
 
+_PROPOSAL_COLORS = [
+    (255, 165, 0),   # orange
+    (148, 0, 211),   # violet
+    (0, 206, 209),   # dark turquoise
+    (255, 20, 147),  # deep pink
+    (50, 205, 50),   # lime green
+    (255, 215, 0),   # gold
+    (0, 191, 255),   # deep sky blue
+    (220, 20, 60),   # crimson
+    (127, 255, 0),   # chartreuse
+    (255, 99, 71),   # tomato
+]
+
+
 def visualize_qwen3vl_grounding(image_path, pred_pairs, gt_pairs, matches,
-                                 action, object_category, iou_threshold=0.5):
+                                 action, object_category, iou_threshold=0.5,
+                                 proposals=None):
     """
     Create visualization comparing predicted pairs vs ground truth pairs.
 
@@ -299,166 +314,170 @@ def visualize_qwen3vl_grounding(image_path, pred_pairs, gt_pairs, matches,
         action: Action verb
         object_category: Object category
         iou_threshold: IoU threshold used for matching
+        proposals: Optional list of proposal dicts (with bbox_1000, class_name, confidence)
 
     Returns:
-        PIL Image with 3-panel visualization (predictions | ground truth | overlay)
+        PIL Image with 4-panel visualization (proposals | predictions | ground truth | overlay)
     """
-    # Load image
     image = Image.open(image_path).convert('RGB')
     img_width, img_height = image.size
 
-    # Create 3 copies for 3-panel visualization
-    pred_img = image.copy()
-    gt_img = image.copy()
-    overlay_img = image.copy()
-
-    # Create drawing contexts
-    pred_draw = ImageDraw.Draw(pred_img)
-    gt_draw = ImageDraw.Draw(gt_img)
-    overlay_draw = ImageDraw.Draw(overlay_img)
-
-    # Try to load a font
     try:
-        font = ImageFont.truetype("/System/Library/Fonts/Helvetica.ttc", 16)
-        small_font = ImageFont.truetype("/System/Library/Fonts/Helvetica.ttc", 12)
-    except:
-        font = ImageFont.load_default()
-        small_font = ImageFont.load_default()
+        font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 16)
+        small_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 12)
+    except Exception:
+        try:
+            font = ImageFont.truetype("/System/Library/Fonts/Helvetica.ttc", 16)
+            small_font = ImageFont.truetype("/System/Library/Fonts/Helvetica.ttc", 12)
+        except Exception:
+            font = ImageFont.load_default()
+            small_font = ImageFont.load_default()
 
-    # Color scheme
-    color_person_pred = (255, 0, 0)      # Red for predicted person
-    color_object_pred = (0, 0, 255)      # Blue for predicted object
-    color_person_gt = (0, 255, 0)        # Green for GT person
-    color_object_gt = (255, 255, 0)      # Yellow for GT object
-    color_matched = (0, 255, 0)          # Green for matched pairs
-    color_unmatched = (255, 0, 0)        # Red for unmatched pairs
+    # ── Panel 1: Proposals ────────────────────────────────────────────────
+    prop_img = image.copy()
+    prop_draw = ImageDraw.Draw(prop_img)
+    if proposals:
+        capped = proposals[:20]
+        for i, prop in enumerate(capped):
+            color = _PROPOSAL_COLORS[i % len(_PROPOSAL_COLORS)]
+            bx1, by1, bx2, by2 = prop["bbox_1000"]
+            bx1 = int(bx1 * img_width / 1000)
+            by1 = int(by1 * img_height / 1000)
+            bx2 = int(bx2 * img_width / 1000)
+            by2 = int(by2 * img_height / 1000)
+            prop_draw.rectangle([bx1, by1, bx2, by2], outline=color, width=2)
+            label = f"{prop['class_name']} {prop['confidence']:.0%}"
+            prop_draw.text((bx1 + 2, max(0, by1 - 14)), label, fill=color, font=small_font)
+        count_text = f"{len(capped)}/{len(proposals)} proposals"
+        prop_draw.text((5, 5), count_text, fill=(255, 255, 255), font=small_font)
+    else:
+        prop_draw.text((10, img_height // 2 - 10), "No proposals", fill=(128, 128, 128), font=font)
 
-    # Draw predicted pairs (left panel)
+    # ── Panel 2: Predictions ──────────────────────────────────────────────
+    pred_img = image.copy()
+    pred_draw = ImageDraw.Draw(pred_img)
+    color_person_pred = (255, 0, 0)
+    color_object_pred = (0, 0, 255)
+    color_matched = (0, 255, 0)
+    color_unmatched = (255, 0, 0)
+
     matched_pred_indices = {m[0] for m in matches}
     for idx, pred_pair in enumerate(pred_pairs):
         is_matched = idx in matched_pred_indices
-
-        # Person box
         person_box = pred_pair['person_box']
         pred_draw.rectangle(person_box, outline=color_person_pred, width=3)
-        pred_draw.text((person_box[0], person_box[1] - 18), f"P{idx+1}",
-                      fill=color_person_pred, font=small_font)
-
-        # Object box
+        pred_draw.text((person_box[0], max(0, person_box[1] - 18)), f"P{idx+1}",
+                       fill=color_person_pred, font=small_font)
         object_box = pred_pair['object_box']
         pred_draw.rectangle(object_box, outline=color_object_pred, width=3)
-        pred_draw.text((object_box[0], object_box[1] - 18), f"O{idx+1}",
-                      fill=color_object_pred, font=small_font)
-
-        # Draw line connecting pair
+        pred_draw.text((object_box[0], max(0, object_box[1] - 18)), f"O{idx+1}",
+                       fill=color_object_pred, font=small_font)
         person_center = ((person_box[0] + person_box[2]) / 2, (person_box[1] + person_box[3]) / 2)
         object_center = ((object_box[0] + object_box[2]) / 2, (object_box[1] + object_box[3]) / 2)
         line_color = color_matched if is_matched else color_unmatched
         pred_draw.line([person_center, object_center], fill=line_color, width=2)
 
-    # Draw ground truth pairs (middle panel)
+    # ── Panel 3: Ground Truth ─────────────────────────────────────────────
+    gt_img = image.copy()
+    gt_draw = ImageDraw.Draw(gt_img)
+    color_person_gt = (0, 255, 0)
+    color_object_gt = (255, 255, 0)
+
     matched_gt_indices = {m[1] for m in matches}
     for idx, gt_pair in enumerate(gt_pairs):
-        is_matched = idx in matched_gt_indices
-
-        # Person box
         person_box = gt_pair['person_box']
         gt_draw.rectangle(person_box, outline=color_person_gt, width=3)
-        gt_draw.text((person_box[0], person_box[1] - 18), f"P{idx+1}",
-                    fill=color_person_gt, font=small_font)
-
-        # Object box
+        gt_draw.text((person_box[0], max(0, person_box[1] - 18)), f"P{idx+1}",
+                     fill=color_person_gt, font=small_font)
         object_box = gt_pair['object_box']
         gt_draw.rectangle(object_box, outline=color_object_gt, width=3)
-        gt_draw.text((object_box[0], object_box[1] - 18), f"O{idx+1}",
-                    fill=color_object_gt, font=small_font)
-
-        # Draw line connecting pair
+        gt_draw.text((object_box[0], max(0, object_box[1] - 18)), f"O{idx+1}",
+                     fill=color_object_gt, font=small_font)
         person_center = ((person_box[0] + person_box[2]) / 2, (person_box[1] + person_box[3]) / 2)
         object_center = ((object_box[0] + object_box[2]) / 2, (object_box[1] + object_box[3]) / 2)
-        gt_draw.line([person_center, object_center], fill=line_color, width=2)
+        gt_draw.line([person_center, object_center], fill=color_person_gt, width=2)
 
-    # Draw overlay (right panel) - show both predictions and GT with matching
+    # ── Panel 4: Overlay ──────────────────────────────────────────────────
+    overlay_img = image.copy()
+    overlay_draw = ImageDraw.Draw(overlay_img)
+
     for match in matches:
-        # Handle both formats: (pred_idx, gt_idx) or (pred_idx, gt_idx, person_iou, object_iou)
         if len(match) == 2:
             pred_idx, gt_idx = match
             pred_pair = pred_pairs[pred_idx]
             gt_pair = gt_pairs[gt_idx]
-            person_iou = calculate_iou(pred_pair['person_box'], gt_pair['person_box'])
         else:
-            pred_idx, gt_idx, person_iou, _ = match
+            pred_idx, gt_idx = match[0], match[1]
             pred_pair = pred_pairs[pred_idx]
             gt_pair = gt_pairs[gt_idx]
 
-        # Calculate IoU for visualization
         person_iou = calculate_iou(pred_pair['person_box'], gt_pair['person_box'])
         object_iou = calculate_iou(pred_pair['object_box'], gt_pair['object_box'])
+        avg_iou = (person_iou + object_iou) / 2.0
 
-        # Draw GT in green
         overlay_draw.rectangle(gt_pair['person_box'], outline=(0, 255, 0), width=2)
         overlay_draw.rectangle(gt_pair['object_box'], outline=(0, 255, 0), width=2)
-
-        # Draw prediction in blue (dashed effect with thinner line)
         overlay_draw.rectangle(pred_pair['person_box'], outline=(0, 100, 255), width=2)
         overlay_draw.rectangle(pred_pair['object_box'], outline=(0, 100, 255), width=2)
+        overlay_draw.text((pred_pair['person_box'][0], max(0, pred_pair['person_box'][1] - 18)),
+                          f"IoU:{avg_iou:.2f}", fill=(255, 255, 255), font=small_font)
 
-        # Show IoU scores
-        avg_iou = (person_iou + object_iou) / 2.0
-        overlay_draw.text((pred_pair['person_box'][0], pred_pair['person_box'][1] - 18),
-                         f"IoU:{avg_iou:.2f}", fill=(255, 255, 255), font=small_font)
-
-    # Draw unmatched predictions in red
     for idx in range(len(pred_pairs)):
         if idx not in matched_pred_indices:
             pred_pair = pred_pairs[idx]
             overlay_draw.rectangle(pred_pair['person_box'], outline=(255, 0, 0), width=2)
             overlay_draw.rectangle(pred_pair['object_box'], outline=(255, 0, 0), width=2)
-            overlay_draw.text((pred_pair['person_box'][0], pred_pair['person_box'][1] - 18),
-                            "FP", fill=(255, 0, 0), font=small_font)
+            overlay_draw.text((pred_pair['person_box'][0], max(0, pred_pair['person_box'][1] - 18)),
+                              "FP", fill=(255, 0, 0), font=small_font)
 
-    # Draw unmatched GT in orange
     for idx in range(len(gt_pairs)):
         if idx not in matched_gt_indices:
             gt_pair = gt_pairs[idx]
             overlay_draw.rectangle(gt_pair['person_box'], outline=(255, 165, 0), width=2)
             overlay_draw.rectangle(gt_pair['object_box'], outline=(255, 165, 0), width=2)
-            overlay_draw.text((gt_pair['person_box'][0], gt_pair['person_box'][1] - 18),
-                            "FN", fill=(255, 165, 0), font=small_font)
+            overlay_draw.text((gt_pair['person_box'][0], max(0, gt_pair['person_box'][1] - 18)),
+                              "FN", fill=(255, 165, 0), font=small_font)
 
-    # Create final 3-panel image
-    panel_width = img_width
-    panel_height = img_height
-    total_width = panel_width * 3
-    header_height = 60
-    total_height = panel_height + header_height
-
-    final_img = Image.new('RGB', (total_width, total_height), color=(255, 255, 255))
-    final_draw = ImageDraw.Draw(final_img)
-
-    # Add headers
-    title_y = 10
-    final_draw.text((panel_width // 2 - 100, title_y), "Predictions", fill=(0, 0, 0), font=font)
-    final_draw.text((panel_width + panel_width // 2 - 80, title_y), "Ground Truth", fill=(0, 0, 0), font=font)
-    final_draw.text((2 * panel_width + panel_width // 2 - 60, title_y), "Overlay", fill=(0, 0, 0), font=font)
-
-    # Add statistics
-    stats_y = 35
+    # ── Compose 4-panel image ─────────────────────────────────────────────
     num_matched = len(matches)
     num_fp = len(pred_pairs) - num_matched
     num_fn = len(gt_pairs) - num_matched
     recall = num_matched / len(gt_pairs) if len(gt_pairs) > 0 else 0.0
 
+    panel_width = img_width
+    total_width = panel_width * 4
+    header_height = 60
+    total_height = img_height + header_height
+
+    final_img = Image.new('RGB', (total_width, total_height), color=(220, 220, 220))
+    final_draw = ImageDraw.Draw(final_img)
+
+    prop_count = len(proposals) if proposals else 0
+    titles = [
+        f"Proposals ({prop_count})",
+        "Predictions",
+        "Ground Truth",
+        "Overlay",
+    ]
+    for col, title in enumerate(titles):
+        final_draw.text((col * panel_width + 10, 8), title, fill=(0, 0, 0), font=font)
+        if col > 0:
+            final_draw.line([(col * panel_width, 0), (col * panel_width, total_height)],
+                            fill=(160, 160, 160), width=2)
+
     stats_text = f"Action: {action} | Object: {object_category} | IoU≥{iou_threshold}"
-    final_draw.text((10, stats_y), stats_text, fill=(0, 0, 0), font=small_font)
+    final_draw.text((10, 35), stats_text, fill=(0, 0, 0), font=small_font)
 
-    metrics_text = f"Pred:{len(pred_pairs)} | GT:{len(gt_pairs)} | Matched:{num_matched} | FP:{num_fp} | FN:{num_fn} | Recall:{recall:.1%}"
-    final_draw.text((panel_width + 10, stats_y), metrics_text, fill=(0, 0, 0), font=small_font)
+    metrics_text = (
+        f"Pred:{len(pred_pairs)} | GT:{len(gt_pairs)} | "
+        f"Matched:{num_matched} | FP:{num_fp} | FN:{num_fn} | Recall:{recall:.1%}"
+    )
+    final_draw.text((panel_width + 10, 35), metrics_text, fill=(0, 0, 0), font=small_font)
 
-    # Paste images
-    final_img.paste(pred_img, (0, header_height))
-    final_img.paste(gt_img, (panel_width, header_height))
-    final_img.paste(overlay_img, (2 * panel_width, header_height))
+    final_img.paste(prop_img, (0, header_height))
+    final_img.paste(pred_img, (panel_width, header_height))
+    final_img.paste(gt_img, (panel_width * 2, header_height))
+    final_img.paste(overlay_img, (panel_width * 3, header_height))
 
     return final_img
 
@@ -935,7 +954,8 @@ def eval_model(args):
             matches_05_list, _, _ = match_pairs_greedy(pred_pairs, gt_pairs, iou_threshold=0.5)
             try:
                 viz_img = visualize_qwen3vl_grounding(
-                    img_path, pred_pairs, gt_pairs, matches_05_list, action, object_category, iou_threshold=0.5
+                    img_path, pred_pairs, gt_pairs, matches_05_list, action, object_category,
+                    iou_threshold=0.5, proposals=proposals
                 )
 
                 base_name = os.path.splitext(file_name)[0]
