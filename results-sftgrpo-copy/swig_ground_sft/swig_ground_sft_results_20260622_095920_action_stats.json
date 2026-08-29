@@ -1,0 +1,2396 @@
+{
+  "tattooing": {
+    "total_samples": 80,
+    "total_gt_pairs": 80,
+    "total_pred_pairs": 39,
+    "matched_pairs_05": 9
+  },
+  "boarding": {
+    "total_samples": 44,
+    "total_gt_pairs": 44,
+    "total_pred_pairs": 147,
+    "matched_pairs_05": 11
+  },
+  "putting": {
+    "total_samples": 79,
+    "total_gt_pairs": 80,
+    "total_pred_pairs": 74,
+    "matched_pairs_05": 52
+  },
+  "twisting": {
+    "total_samples": 9,
+    "total_gt_pairs": 9,
+    "total_pred_pairs": 6,
+    "matched_pairs_05": 1
+  },
+  "swinging": {
+    "total_samples": 43,
+    "total_gt_pairs": 43,
+    "total_pred_pairs": 64,
+    "matched_pairs_05": 22
+  },
+  "pooing": {
+    "total_samples": 14,
+    "total_gt_pairs": 14,
+    "total_pred_pairs": 15,
+    "matched_pairs_05": 12
+  },
+  "molding": {
+    "total_samples": 74,
+    "total_gt_pairs": 75,
+    "total_pred_pairs": 78,
+    "matched_pairs_05": 52
+  },
+  "sweeping": {
+    "total_samples": 53,
+    "total_gt_pairs": 54,
+    "total_pred_pairs": 54,
+    "matched_pairs_05": 39
+  },
+  "photographing": {
+    "total_samples": 61,
+    "total_gt_pairs": 61,
+    "total_pred_pairs": 73,
+    "matched_pairs_05": 37
+  },
+  "lighting": {
+    "total_samples": 70,
+    "total_gt_pairs": 77,
+    "total_pred_pairs": 71,
+    "matched_pairs_05": 35
+  },
+  "operating": {
+    "total_samples": 55,
+    "total_gt_pairs": 55,
+    "total_pred_pairs": 60,
+    "matched_pairs_05": 29
+  },
+  "yanking": {
+    "total_samples": 45,
+    "total_gt_pairs": 48,
+    "total_pred_pairs": 24,
+    "matched_pairs_05": 10
+  },
+  "pruning": {
+    "total_samples": 125,
+    "total_gt_pairs": 126,
+    "total_pred_pairs": 126,
+    "matched_pairs_05": 65
+  },
+  "locking": {
+    "total_samples": 86,
+    "total_gt_pairs": 86,
+    "total_pred_pairs": 87,
+    "matched_pairs_05": 50
+  },
+  "igniting": {
+    "total_samples": 71,
+    "total_gt_pairs": 75,
+    "total_pred_pairs": 73,
+    "matched_pairs_05": 24
+  },
+  "nagging": {
+    "total_samples": 49,
+    "total_gt_pairs": 49,
+    "total_pred_pairs": 0,
+    "matched_pairs_05": 0
+  },
+  "hunching": {
+    "total_samples": 29,
+    "total_gt_pairs": 29,
+    "total_pred_pairs": 33,
+    "matched_pairs_05": 16
+  },
+  "repairing": {
+    "total_samples": 82,
+    "total_gt_pairs": 85,
+    "total_pred_pairs": 92,
+    "matched_pairs_05": 42
+  },
+  "confronting": {
+    "total_samples": 46,
+    "total_gt_pairs": 46,
+    "total_pred_pairs": 0,
+    "matched_pairs_05": 0
+  },
+  "fastening": {
+    "total_samples": 118,
+    "total_gt_pairs": 124,
+    "total_pred_pairs": 125,
+    "matched_pairs_05": 59
+  },
+  "caressing": {
+    "total_samples": 57,
+    "total_gt_pairs": 65,
+    "total_pred_pairs": 19,
+    "matched_pairs_05": 10
+  },
+  "scolding": {
+    "total_samples": 46,
+    "total_gt_pairs": 46,
+    "total_pred_pairs": 3,
+    "matched_pairs_05": 3
+  },
+  "hurling": {
+    "total_samples": 83,
+    "total_gt_pairs": 85,
+    "total_pred_pairs": 46,
+    "matched_pairs_05": 30
+  },
+  "unpacking": {
+    "total_samples": 74,
+    "total_gt_pairs": 74,
+    "total_pred_pairs": 117,
+    "matched_pairs_05": 30
+  },
+  "applying": {
+    "total_samples": 77,
+    "total_gt_pairs": 78,
+    "total_pred_pairs": 74,
+    "matched_pairs_05": 35
+  },
+  "whipping": {
+    "total_samples": 80,
+    "total_gt_pairs": 80,
+    "total_pred_pairs": 95,
+    "matched_pairs_05": 43
+  },
+  "attaching": {
+    "total_samples": 112,
+    "total_gt_pairs": 119,
+    "total_pred_pairs": 124,
+    "matched_pairs_05": 48
+  },
+  "bouncing": {
+    "total_samples": 50,
+    "total_gt_pairs": 55,
+    "total_pred_pairs": 86,
+    "matched_pairs_05": 26
+  },
+  "pedaling": {
+    "total_samples": 46,
+    "total_gt_pairs": 46,
+    "total_pred_pairs": 79,
+    "matched_pairs_05": 31
+  },
+  "pressing": {
+    "total_samples": 47,
+    "total_gt_pairs": 47,
+    "total_pred_pairs": 46,
+    "matched_pairs_05": 27
+  },
+  "peeing": {
+    "total_samples": 22,
+    "total_gt_pairs": 22,
+    "total_pred_pairs": 22,
+    "matched_pairs_05": 11
+  },
+  "unplugging": {
+    "total_samples": 46,
+    "total_gt_pairs": 46,
+    "total_pred_pairs": 47,
+    "matched_pairs_05": 22
+  },
+  "sitting": {
+    "total_samples": 22,
+    "total_gt_pairs": 22,
+    "total_pred_pairs": 33,
+    "matched_pairs_05": 16
+  },
+  "drumming": {
+    "total_samples": 81,
+    "total_gt_pairs": 81,
+    "total_pred_pairs": 134,
+    "matched_pairs_05": 16
+  },
+  "dousing": {
+    "total_samples": 42,
+    "total_gt_pairs": 42,
+    "total_pred_pairs": 20,
+    "matched_pairs_05": 4
+  },
+  "emptying": {
+    "total_samples": 107,
+    "total_gt_pairs": 111,
+    "total_pred_pairs": 109,
+    "matched_pairs_05": 64
+  },
+  "saying": {
+    "total_samples": 16,
+    "total_gt_pairs": 16,
+    "total_pred_pairs": 0,
+    "matched_pairs_05": 0
+  },
+  "dragging": {
+    "total_samples": 54,
+    "total_gt_pairs": 62,
+    "total_pred_pairs": 60,
+    "matched_pairs_05": 17
+  },
+  "coloring": {
+    "total_samples": 86,
+    "total_gt_pairs": 86,
+    "total_pred_pairs": 109,
+    "matched_pairs_05": 52
+  },
+  "performing": {
+    "total_samples": 17,
+    "total_gt_pairs": 17,
+    "total_pred_pairs": 35,
+    "matched_pairs_05": 6
+  },
+  "inserting": {
+    "total_samples": 69,
+    "total_gt_pairs": 70,
+    "total_pred_pairs": 68,
+    "matched_pairs_05": 37
+  },
+  "checking": {
+    "total_samples": 67,
+    "total_gt_pairs": 70,
+    "total_pred_pairs": 44,
+    "matched_pairs_05": 22
+  },
+  "hoisting": {
+    "total_samples": 64,
+    "total_gt_pairs": 64,
+    "total_pred_pairs": 108,
+    "matched_pairs_05": 13
+  },
+  "slapping": {
+    "total_samples": 47,
+    "total_gt_pairs": 59,
+    "total_pred_pairs": 4,
+    "matched_pairs_05": 2
+  },
+  "serving": {
+    "total_samples": 76,
+    "total_gt_pairs": 76,
+    "total_pred_pairs": 50,
+    "matched_pairs_05": 15
+  },
+  "smashing": {
+    "total_samples": 81,
+    "total_gt_pairs": 83,
+    "total_pred_pairs": 82,
+    "matched_pairs_05": 48
+  },
+  "knocking": {
+    "total_samples": 38,
+    "total_gt_pairs": 38,
+    "total_pred_pairs": 38,
+    "matched_pairs_05": 33
+  },
+  "flinging": {
+    "total_samples": 42,
+    "total_gt_pairs": 42,
+    "total_pred_pairs": 46,
+    "matched_pairs_05": 21
+  },
+  "spilling": {
+    "total_samples": 37,
+    "total_gt_pairs": 37,
+    "total_pred_pairs": 33,
+    "matched_pairs_05": 18
+  },
+  "milking": {
+    "total_samples": 84,
+    "total_gt_pairs": 84,
+    "total_pred_pairs": 92,
+    "matched_pairs_05": 64
+  },
+  "making": {
+    "total_samples": 85,
+    "total_gt_pairs": 86,
+    "total_pred_pairs": 123,
+    "matched_pairs_05": 45
+  },
+  "grilling": {
+    "total_samples": 42,
+    "total_gt_pairs": 42,
+    "total_pred_pairs": 44,
+    "matched_pairs_05": 17
+  },
+  "hugging": {
+    "total_samples": 40,
+    "total_gt_pairs": 40,
+    "total_pred_pairs": 9,
+    "matched_pairs_05": 7
+  },
+  "buying": {
+    "total_samples": 95,
+    "total_gt_pairs": 95,
+    "total_pred_pairs": 60,
+    "matched_pairs_05": 17
+  },
+  "bothering": {
+    "total_samples": 45,
+    "total_gt_pairs": 45,
+    "total_pred_pairs": 1,
+    "matched_pairs_05": 1
+  },
+  "unveiling": {
+    "total_samples": 39,
+    "total_gt_pairs": 39,
+    "total_pred_pairs": 86,
+    "matched_pairs_05": 7
+  },
+  "distributing": {
+    "total_samples": 89,
+    "total_gt_pairs": 91,
+    "total_pred_pairs": 57,
+    "matched_pairs_05": 17
+  },
+  "applauding": {
+    "total_samples": 13,
+    "total_gt_pairs": 13,
+    "total_pred_pairs": 0,
+    "matched_pairs_05": 0
+  },
+  "typing": {
+    "total_samples": 49,
+    "total_gt_pairs": 49,
+    "total_pred_pairs": 53,
+    "matched_pairs_05": 42
+  },
+  "opening": {
+    "total_samples": 55,
+    "total_gt_pairs": 55,
+    "total_pred_pairs": 54,
+    "matched_pairs_05": 31
+  },
+  "reading": {
+    "total_samples": 47,
+    "total_gt_pairs": 47,
+    "total_pred_pairs": 52,
+    "matched_pairs_05": 41
+  },
+  "breaking": {
+    "total_samples": 60,
+    "total_gt_pairs": 60,
+    "total_pred_pairs": 59,
+    "matched_pairs_05": 34
+  },
+  "buckling": {
+    "total_samples": 79,
+    "total_gt_pairs": 89,
+    "total_pred_pairs": 81,
+    "matched_pairs_05": 38
+  },
+  "harvesting": {
+    "total_samples": 37,
+    "total_gt_pairs": 37,
+    "total_pred_pairs": 57,
+    "matched_pairs_05": 8
+  },
+  "riding": {
+    "total_samples": 43,
+    "total_gt_pairs": 43,
+    "total_pred_pairs": 77,
+    "matched_pairs_05": 32
+  },
+  "pinning": {
+    "total_samples": 69,
+    "total_gt_pairs": 74,
+    "total_pred_pairs": 37,
+    "matched_pairs_05": 17
+  },
+  "washing": {
+    "total_samples": 56,
+    "total_gt_pairs": 56,
+    "total_pred_pairs": 58,
+    "matched_pairs_05": 28
+  },
+  "sketching": {
+    "total_samples": 117,
+    "total_gt_pairs": 117,
+    "total_pred_pairs": 112,
+    "matched_pairs_05": 66
+  },
+  "tilling": {
+    "total_samples": 45,
+    "total_gt_pairs": 45,
+    "total_pred_pairs": 55,
+    "matched_pairs_05": 28
+  },
+  "wiping": {
+    "total_samples": 64,
+    "total_gt_pairs": 66,
+    "total_pred_pairs": 57,
+    "matched_pairs_05": 42
+  },
+  "inflating": {
+    "total_samples": 64,
+    "total_gt_pairs": 64,
+    "total_pred_pairs": 66,
+    "matched_pairs_05": 2
+  },
+  "burying": {
+    "total_samples": 31,
+    "total_gt_pairs": 31,
+    "total_pred_pairs": 52,
+    "matched_pairs_05": 11
+  },
+  "begging": {
+    "total_samples": 13,
+    "total_gt_pairs": 13,
+    "total_pred_pairs": 4,
+    "matched_pairs_05": 2
+  },
+  "baptizing": {
+    "total_samples": 49,
+    "total_gt_pairs": 49,
+    "total_pred_pairs": 0,
+    "matched_pairs_05": 0
+  },
+  "brushing": {
+    "total_samples": 80,
+    "total_gt_pairs": 80,
+    "total_pred_pairs": 95,
+    "matched_pairs_05": 38
+  },
+  "fueling": {
+    "total_samples": 92,
+    "total_gt_pairs": 92,
+    "total_pred_pairs": 100,
+    "matched_pairs_05": 59
+  },
+  "biting": {
+    "total_samples": 20,
+    "total_gt_pairs": 20,
+    "total_pred_pairs": 19,
+    "matched_pairs_05": 12
+  },
+  "fording": {
+    "total_samples": 22,
+    "total_gt_pairs": 22,
+    "total_pred_pairs": 37,
+    "matched_pairs_05": 6
+  },
+  "combing": {
+    "total_samples": 55,
+    "total_gt_pairs": 55,
+    "total_pred_pairs": 55,
+    "matched_pairs_05": 28
+  },
+  "stuffing": {
+    "total_samples": 50,
+    "total_gt_pairs": 50,
+    "total_pred_pairs": 55,
+    "matched_pairs_05": 26
+  },
+  "weighing": {
+    "total_samples": 80,
+    "total_gt_pairs": 80,
+    "total_pred_pairs": 75,
+    "matched_pairs_05": 41
+  },
+  "buttering": {
+    "total_samples": 86,
+    "total_gt_pairs": 87,
+    "total_pred_pairs": 88,
+    "matched_pairs_05": 56
+  },
+  "panhandling": {
+    "total_samples": 14,
+    "total_gt_pairs": 14,
+    "total_pred_pairs": 3,
+    "matched_pairs_05": 1
+  },
+  "frisking": {
+    "total_samples": 42,
+    "total_gt_pairs": 42,
+    "total_pred_pairs": 0,
+    "matched_pairs_05": 0
+  },
+  "mashing": {
+    "total_samples": 80,
+    "total_gt_pairs": 80,
+    "total_pred_pairs": 84,
+    "matched_pairs_05": 47
+  },
+  "painting": {
+    "total_samples": 87,
+    "total_gt_pairs": 87,
+    "total_pred_pairs": 98,
+    "matched_pairs_05": 49
+  },
+  "handcuffing": {
+    "total_samples": 50,
+    "total_gt_pairs": 50,
+    "total_pred_pairs": 0,
+    "matched_pairs_05": 0
+  },
+  "leaning": {
+    "total_samples": 46,
+    "total_gt_pairs": 46,
+    "total_pred_pairs": 49,
+    "matched_pairs_05": 33
+  },
+  "fixing": {
+    "total_samples": 95,
+    "total_gt_pairs": 98,
+    "total_pred_pairs": 106,
+    "matched_pairs_05": 44
+  },
+  "squeezing": {
+    "total_samples": 46,
+    "total_gt_pairs": 46,
+    "total_pred_pairs": 49,
+    "matched_pairs_05": 36
+  },
+  "weeding": {
+    "total_samples": 16,
+    "total_gt_pairs": 16,
+    "total_pred_pairs": 16,
+    "matched_pairs_05": 7
+  },
+  "ducking": {
+    "total_samples": 18,
+    "total_gt_pairs": 18,
+    "total_pred_pairs": 21,
+    "matched_pairs_05": 12
+  },
+  "dining": {
+    "total_samples": 12,
+    "total_gt_pairs": 12,
+    "total_pred_pairs": 27,
+    "matched_pairs_05": 5
+  },
+  "embracing": {
+    "total_samples": 47,
+    "total_gt_pairs": 47,
+    "total_pred_pairs": 2,
+    "matched_pairs_05": 2
+  },
+  "cramming": {
+    "total_samples": 38,
+    "total_gt_pairs": 38,
+    "total_pred_pairs": 49,
+    "matched_pairs_05": 20
+  },
+  "restraining": {
+    "total_samples": 45,
+    "total_gt_pairs": 45,
+    "total_pred_pairs": 7,
+    "matched_pairs_05": 4
+  },
+  "giving": {
+    "total_samples": 89,
+    "total_gt_pairs": 89,
+    "total_pred_pairs": 48,
+    "matched_pairs_05": 23
+  },
+  "paying": {
+    "total_samples": 49,
+    "total_gt_pairs": 49,
+    "total_pred_pairs": 9,
+    "matched_pairs_05": 3
+  },
+  "teaching": {
+    "total_samples": 45,
+    "total_gt_pairs": 45,
+    "total_pred_pairs": 0,
+    "matched_pairs_05": 0
+  },
+  "drinking": {
+    "total_samples": 59,
+    "total_gt_pairs": 60,
+    "total_pred_pairs": 61,
+    "matched_pairs_05": 41
+  },
+  "dipping": {
+    "total_samples": 62,
+    "total_gt_pairs": 63,
+    "total_pred_pairs": 61,
+    "matched_pairs_05": 49
+  },
+  "instructing": {
+    "total_samples": 49,
+    "total_gt_pairs": 49,
+    "total_pred_pairs": 0,
+    "matched_pairs_05": 0
+  },
+  "exterminating": {
+    "total_samples": 49,
+    "total_gt_pairs": 49,
+    "total_pred_pairs": 48,
+    "matched_pairs_05": 27
+  },
+  "juggling": {
+    "total_samples": 46,
+    "total_gt_pairs": 46,
+    "total_pred_pairs": 126,
+    "matched_pairs_05": 5
+  },
+  "loading": {
+    "total_samples": 72,
+    "total_gt_pairs": 72,
+    "total_pred_pairs": 118,
+    "matched_pairs_05": 26
+  },
+  "disciplining": {
+    "total_samples": 54,
+    "total_gt_pairs": 54,
+    "total_pred_pairs": 5,
+    "matched_pairs_05": 5
+  },
+  "punting": {
+    "total_samples": 46,
+    "total_gt_pairs": 46,
+    "total_pred_pairs": 45,
+    "matched_pairs_05": 35
+  },
+  "spearing": {
+    "total_samples": 23,
+    "total_gt_pairs": 23,
+    "total_pred_pairs": 24,
+    "matched_pairs_05": 17
+  },
+  "buttoning": {
+    "total_samples": 41,
+    "total_gt_pairs": 41,
+    "total_pred_pairs": 41,
+    "matched_pairs_05": 36
+  },
+  "tickling": {
+    "total_samples": 47,
+    "total_gt_pairs": 47,
+    "total_pred_pairs": 6,
+    "matched_pairs_05": 3
+  },
+  "injecting": {
+    "total_samples": 122,
+    "total_gt_pairs": 124,
+    "total_pred_pairs": 92,
+    "matched_pairs_05": 31
+  },
+  "smelling": {
+    "total_samples": 38,
+    "total_gt_pairs": 38,
+    "total_pred_pairs": 38,
+    "matched_pairs_05": 28
+  },
+  "manicuring": {
+    "total_samples": 88,
+    "total_gt_pairs": 88,
+    "total_pred_pairs": 89,
+    "matched_pairs_05": 25
+  },
+  "massaging": {
+    "total_samples": 48,
+    "total_gt_pairs": 55,
+    "total_pred_pairs": 1,
+    "matched_pairs_05": 0
+  },
+  "steering": {
+    "total_samples": 91,
+    "total_gt_pairs": 91,
+    "total_pred_pairs": 94,
+    "matched_pairs_05": 55
+  },
+  "chiseling": {
+    "total_samples": 41,
+    "total_gt_pairs": 41,
+    "total_pred_pairs": 42,
+    "matched_pairs_05": 34
+  },
+  "vacuuming": {
+    "total_samples": 81,
+    "total_gt_pairs": 81,
+    "total_pred_pairs": 85,
+    "matched_pairs_05": 45
+  },
+  "browsing": {
+    "total_samples": 45,
+    "total_gt_pairs": 45,
+    "total_pred_pairs": 54,
+    "matched_pairs_05": 18
+  },
+  "lecturing": {
+    "total_samples": 45,
+    "total_gt_pairs": 45,
+    "total_pred_pairs": 0,
+    "matched_pairs_05": 0
+  },
+  "kissing": {
+    "total_samples": 48,
+    "total_gt_pairs": 51,
+    "total_pred_pairs": 1,
+    "matched_pairs_05": 1
+  },
+  "offering": {
+    "total_samples": 66,
+    "total_gt_pairs": 66,
+    "total_pred_pairs": 36,
+    "matched_pairs_05": 17
+  },
+  "carting": {
+    "total_samples": 18,
+    "total_gt_pairs": 19,
+    "total_pred_pairs": 23,
+    "matched_pairs_05": 14
+  },
+  "interviewing": {
+    "total_samples": 48,
+    "total_gt_pairs": 48,
+    "total_pred_pairs": 0,
+    "matched_pairs_05": 0
+  },
+  "gardening": {
+    "total_samples": 20,
+    "total_gt_pairs": 20,
+    "total_pred_pairs": 25,
+    "matched_pairs_05": 12
+  },
+  "cleaning": {
+    "total_samples": 65,
+    "total_gt_pairs": 65,
+    "total_pred_pairs": 81,
+    "matched_pairs_05": 34
+  },
+  "throwing": {
+    "total_samples": 45,
+    "total_gt_pairs": 45,
+    "total_pred_pairs": 49,
+    "matched_pairs_05": 27
+  },
+  "autographing": {
+    "total_samples": 65,
+    "total_gt_pairs": 65,
+    "total_pred_pairs": 48,
+    "matched_pairs_05": 27
+  },
+  "picking": {
+    "total_samples": 80,
+    "total_gt_pairs": 80,
+    "total_pred_pairs": 96,
+    "matched_pairs_05": 40
+  },
+  "guarding": {
+    "total_samples": 36,
+    "total_gt_pairs": 36,
+    "total_pred_pairs": 64,
+    "matched_pairs_05": 13
+  },
+  "installing": {
+    "total_samples": 96,
+    "total_gt_pairs": 99,
+    "total_pred_pairs": 108,
+    "matched_pairs_05": 51
+  },
+  "spinning": {
+    "total_samples": 76,
+    "total_gt_pairs": 76,
+    "total_pred_pairs": 78,
+    "matched_pairs_05": 35
+  },
+  "chopping": {
+    "total_samples": 88,
+    "total_gt_pairs": 88,
+    "total_pred_pairs": 89,
+    "matched_pairs_05": 62
+  },
+  "calling": {
+    "total_samples": 46,
+    "total_gt_pairs": 46,
+    "total_pred_pairs": 52,
+    "matched_pairs_05": 26
+  },
+  "assembling": {
+    "total_samples": 61,
+    "total_gt_pairs": 63,
+    "total_pred_pairs": 87,
+    "matched_pairs_05": 23
+  },
+  "strapping": {
+    "total_samples": 116,
+    "total_gt_pairs": 122,
+    "total_pred_pairs": 103,
+    "matched_pairs_05": 28
+  },
+  "baking": {
+    "total_samples": 70,
+    "total_gt_pairs": 70,
+    "total_pred_pairs": 91,
+    "matched_pairs_05": 42
+  },
+  "gluing": {
+    "total_samples": 95,
+    "total_gt_pairs": 103,
+    "total_pred_pairs": 96,
+    "matched_pairs_05": 60
+  },
+  "punching": {
+    "total_samples": 41,
+    "total_gt_pairs": 43,
+    "total_pred_pairs": 7,
+    "matched_pairs_05": 6
+  },
+  "packing": {
+    "total_samples": 83,
+    "total_gt_pairs": 83,
+    "total_pred_pairs": 114,
+    "matched_pairs_05": 39
+  },
+  "gambling": {
+    "total_samples": 22,
+    "total_gt_pairs": 22,
+    "total_pred_pairs": 30,
+    "matched_pairs_05": 5
+  },
+  "wringing": {
+    "total_samples": 40,
+    "total_gt_pairs": 40,
+    "total_pred_pairs": 42,
+    "matched_pairs_05": 22
+  },
+  "microwaving": {
+    "total_samples": 47,
+    "total_gt_pairs": 47,
+    "total_pred_pairs": 50,
+    "matched_pairs_05": 28
+  },
+  "working": {
+    "total_samples": 34,
+    "total_gt_pairs": 34,
+    "total_pred_pairs": 61,
+    "matched_pairs_05": 12
+  },
+  "videotaping": {
+    "total_samples": 29,
+    "total_gt_pairs": 29,
+    "total_pred_pairs": 2,
+    "matched_pairs_05": 1
+  },
+  "snuggling": {
+    "total_samples": 33,
+    "total_gt_pairs": 33,
+    "total_pred_pairs": 9,
+    "matched_pairs_05": 6
+  },
+  "measuring": {
+    "total_samples": 65,
+    "total_gt_pairs": 65,
+    "total_pred_pairs": 78,
+    "matched_pairs_05": 36
+  },
+  "camping": {
+    "total_samples": 29,
+    "total_gt_pairs": 29,
+    "total_pred_pairs": 52,
+    "matched_pairs_05": 11
+  },
+  "lacing": {
+    "total_samples": 44,
+    "total_gt_pairs": 44,
+    "total_pred_pairs": 53,
+    "matched_pairs_05": 30
+  },
+  "slipping": {
+    "total_samples": 3,
+    "total_gt_pairs": 3,
+    "total_pred_pairs": 3,
+    "matched_pairs_05": 2
+  },
+  "twirling": {
+    "total_samples": 38,
+    "total_gt_pairs": 38,
+    "total_pred_pairs": 47,
+    "matched_pairs_05": 23
+  },
+  "stitching": {
+    "total_samples": 65,
+    "total_gt_pairs": 65,
+    "total_pred_pairs": 73,
+    "matched_pairs_05": 11
+  },
+  "flexing": {
+    "total_samples": 13,
+    "total_gt_pairs": 13,
+    "total_pred_pairs": 1,
+    "matched_pairs_05": 0
+  },
+  "counting": {
+    "total_samples": 42,
+    "total_gt_pairs": 42,
+    "total_pred_pairs": 52,
+    "matched_pairs_05": 10
+  },
+  "packaging": {
+    "total_samples": 37,
+    "total_gt_pairs": 37,
+    "total_pred_pairs": 67,
+    "matched_pairs_05": 9
+  },
+  "arranging": {
+    "total_samples": 52,
+    "total_gt_pairs": 52,
+    "total_pred_pairs": 86,
+    "matched_pairs_05": 18
+  },
+  "wrapping": {
+    "total_samples": 87,
+    "total_gt_pairs": 88,
+    "total_pred_pairs": 80,
+    "matched_pairs_05": 46
+  },
+  "adjusting": {
+    "total_samples": 57,
+    "total_gt_pairs": 57,
+    "total_pred_pairs": 59,
+    "matched_pairs_05": 31
+  },
+  "competing": {
+    "total_samples": 2,
+    "total_gt_pairs": 2,
+    "total_pred_pairs": 6,
+    "matched_pairs_05": 0
+  },
+  "scraping": {
+    "total_samples": 86,
+    "total_gt_pairs": 87,
+    "total_pred_pairs": 86,
+    "matched_pairs_05": 46
+  },
+  "brewing": {
+    "total_samples": 29,
+    "total_gt_pairs": 29,
+    "total_pred_pairs": 35,
+    "matched_pairs_05": 4
+  },
+  "mowing": {
+    "total_samples": 49,
+    "total_gt_pairs": 50,
+    "total_pred_pairs": 49,
+    "matched_pairs_05": 44
+  },
+  "interrogating": {
+    "total_samples": 51,
+    "total_gt_pairs": 52,
+    "total_pred_pairs": 8,
+    "matched_pairs_05": 4
+  },
+  "trimming": {
+    "total_samples": 109,
+    "total_gt_pairs": 110,
+    "total_pred_pairs": 107,
+    "matched_pairs_05": 64
+  },
+  "farming": {
+    "total_samples": 52,
+    "total_gt_pairs": 52,
+    "total_pred_pairs": 78,
+    "matched_pairs_05": 14
+  },
+  "welding": {
+    "total_samples": 86,
+    "total_gt_pairs": 100,
+    "total_pred_pairs": 88,
+    "matched_pairs_05": 23
+  },
+  "calming": {
+    "total_samples": 14,
+    "total_gt_pairs": 14,
+    "total_pred_pairs": 1,
+    "matched_pairs_05": 1
+  },
+  "phoning": {
+    "total_samples": 47,
+    "total_gt_pairs": 47,
+    "total_pred_pairs": 49,
+    "matched_pairs_05": 25
+  },
+  "heaving": {
+    "total_samples": 53,
+    "total_gt_pairs": 53,
+    "total_pred_pairs": 69,
+    "matched_pairs_05": 31
+  },
+  "soaking": {
+    "total_samples": 50,
+    "total_gt_pairs": 50,
+    "total_pred_pairs": 50,
+    "matched_pairs_05": 35
+  },
+  "tuning": {
+    "total_samples": 69,
+    "total_gt_pairs": 70,
+    "total_pred_pairs": 69,
+    "matched_pairs_05": 36
+  },
+  "building": {
+    "total_samples": 100,
+    "total_gt_pairs": 100,
+    "total_pred_pairs": 150,
+    "matched_pairs_05": 42
+  },
+  "stripping": {
+    "total_samples": 84,
+    "total_gt_pairs": 85,
+    "total_pred_pairs": 90,
+    "matched_pairs_05": 43
+  },
+  "rubbing": {
+    "total_samples": 20,
+    "total_gt_pairs": 20,
+    "total_pred_pairs": 17,
+    "matched_pairs_05": 8
+  },
+  "pasting": {
+    "total_samples": 77,
+    "total_gt_pairs": 91,
+    "total_pred_pairs": 85,
+    "matched_pairs_05": 46
+  },
+  "stroking": {
+    "total_samples": 41,
+    "total_gt_pairs": 41,
+    "total_pred_pairs": 31,
+    "matched_pairs_05": 20
+  },
+  "wheeling": {
+    "total_samples": 60,
+    "total_gt_pairs": 60,
+    "total_pred_pairs": 67,
+    "matched_pairs_05": 45
+  },
+  "taping": {
+    "total_samples": 56,
+    "total_gt_pairs": 59,
+    "total_pred_pairs": 64,
+    "matched_pairs_05": 22
+  },
+  "climbing": {
+    "total_samples": 38,
+    "total_gt_pairs": 39,
+    "total_pred_pairs": 47,
+    "matched_pairs_05": 16
+  },
+  "tasting": {
+    "total_samples": 69,
+    "total_gt_pairs": 69,
+    "total_pred_pairs": 77,
+    "matched_pairs_05": 30
+  },
+  "clipping": {
+    "total_samples": 114,
+    "total_gt_pairs": 117,
+    "total_pred_pairs": 116,
+    "matched_pairs_05": 47
+  },
+  "potting": {
+    "total_samples": 93,
+    "total_gt_pairs": 93,
+    "total_pred_pairs": 101,
+    "matched_pairs_05": 49
+  },
+  "pricking": {
+    "total_samples": 90,
+    "total_gt_pairs": 90,
+    "total_pred_pairs": 48,
+    "matched_pairs_05": 19
+  },
+  "pumping": {
+    "total_samples": 110,
+    "total_gt_pairs": 110,
+    "total_pred_pairs": 109,
+    "matched_pairs_05": 61
+  },
+  "dyeing": {
+    "total_samples": 35,
+    "total_gt_pairs": 35,
+    "total_pred_pairs": 37,
+    "matched_pairs_05": 13
+  },
+  "skating": {
+    "total_samples": 39,
+    "total_gt_pairs": 39,
+    "total_pred_pairs": 70,
+    "matched_pairs_05": 11
+  },
+  "raking": {
+    "total_samples": 45,
+    "total_gt_pairs": 45,
+    "total_pred_pairs": 60,
+    "matched_pairs_05": 17
+  },
+  "pitching": {
+    "total_samples": 46,
+    "total_gt_pairs": 46,
+    "total_pred_pairs": 46,
+    "matched_pairs_05": 32
+  },
+  "kneeling": {
+    "total_samples": 17,
+    "total_gt_pairs": 17,
+    "total_pred_pairs": 67,
+    "matched_pairs_05": 10
+  },
+  "shooting": {
+    "total_samples": 59,
+    "total_gt_pairs": 59,
+    "total_pred_pairs": 64,
+    "matched_pairs_05": 27
+  },
+  "practicing": {
+    "total_samples": 38,
+    "total_gt_pairs": 38,
+    "total_pred_pairs": 72,
+    "matched_pairs_05": 19
+  },
+  "tilting": {
+    "total_samples": 15,
+    "total_gt_pairs": 16,
+    "total_pred_pairs": 13,
+    "matched_pairs_05": 7
+  },
+  "slicing": {
+    "total_samples": 90,
+    "total_gt_pairs": 90,
+    "total_pred_pairs": 93,
+    "matched_pairs_05": 57
+  },
+  "slouching": {
+    "total_samples": 40,
+    "total_gt_pairs": 40,
+    "total_pred_pairs": 44,
+    "matched_pairs_05": 32
+  },
+  "imitating": {
+    "total_samples": 39,
+    "total_gt_pairs": 39,
+    "total_pred_pairs": 7,
+    "matched_pairs_05": 3
+  },
+  "pushing": {
+    "total_samples": 45,
+    "total_gt_pairs": 45,
+    "total_pred_pairs": 56,
+    "matched_pairs_05": 32
+  },
+  "falling": {
+    "total_samples": 23,
+    "total_gt_pairs": 23,
+    "total_pred_pairs": 22,
+    "matched_pairs_05": 15
+  },
+  "plowing": {
+    "total_samples": 33,
+    "total_gt_pairs": 33,
+    "total_pred_pairs": 39,
+    "matched_pairs_05": 22
+  },
+  "clenching": {
+    "total_samples": 45,
+    "total_gt_pairs": 60,
+    "total_pred_pairs": 57,
+    "matched_pairs_05": 25
+  },
+  "unlocking": {
+    "total_samples": 121,
+    "total_gt_pairs": 123,
+    "total_pred_pairs": 120,
+    "matched_pairs_05": 20
+  },
+  "immersing": {
+    "total_samples": 12,
+    "total_gt_pairs": 12,
+    "total_pred_pairs": 23,
+    "matched_pairs_05": 4
+  },
+  "pulling": {
+    "total_samples": 23,
+    "total_gt_pairs": 24,
+    "total_pred_pairs": 40,
+    "matched_pairs_05": 15
+  },
+  "frying": {
+    "total_samples": 85,
+    "total_gt_pairs": 85,
+    "total_pred_pairs": 98,
+    "matched_pairs_05": 51
+  },
+  "kicking": {
+    "total_samples": 42,
+    "total_gt_pairs": 47,
+    "total_pred_pairs": 29,
+    "matched_pairs_05": 21
+  },
+  "prying": {
+    "total_samples": 115,
+    "total_gt_pairs": 116,
+    "total_pred_pairs": 121,
+    "matched_pairs_05": 63
+  },
+  "hanging": {
+    "total_samples": 88,
+    "total_gt_pairs": 88,
+    "total_pred_pairs": 95,
+    "matched_pairs_05": 38
+  },
+  "coaching": {
+    "total_samples": 50,
+    "total_gt_pairs": 50,
+    "total_pred_pairs": 5,
+    "matched_pairs_05": 5
+  },
+  "carrying": {
+    "total_samples": 30,
+    "total_gt_pairs": 30,
+    "total_pred_pairs": 48,
+    "matched_pairs_05": 13
+  },
+  "communicating": {
+    "total_samples": 48,
+    "total_gt_pairs": 48,
+    "total_pred_pairs": 2,
+    "matched_pairs_05": 1
+  },
+  "vaulting": {
+    "total_samples": 81,
+    "total_gt_pairs": 85,
+    "total_pred_pairs": 83,
+    "matched_pairs_05": 37
+  },
+  "preaching": {
+    "total_samples": 15,
+    "total_gt_pairs": 15,
+    "total_pred_pairs": 0,
+    "matched_pairs_05": 0
+  },
+  "spying": {
+    "total_samples": 45,
+    "total_gt_pairs": 45,
+    "total_pred_pairs": 40,
+    "matched_pairs_05": 35
+  },
+  "reassuring": {
+    "total_samples": 48,
+    "total_gt_pairs": 48,
+    "total_pred_pairs": 2,
+    "matched_pairs_05": 2
+  },
+  "uncorking": {
+    "total_samples": 90,
+    "total_gt_pairs": 90,
+    "total_pred_pairs": 88,
+    "matched_pairs_05": 50
+  },
+  "decorating": {
+    "total_samples": 83,
+    "total_gt_pairs": 84,
+    "total_pred_pairs": 96,
+    "matched_pairs_05": 46
+  },
+  "sniffing": {
+    "total_samples": 11,
+    "total_gt_pairs": 11,
+    "total_pred_pairs": 11,
+    "matched_pairs_05": 7
+  },
+  "surfing": {
+    "total_samples": 44,
+    "total_gt_pairs": 48,
+    "total_pred_pairs": 43,
+    "matched_pairs_05": 34
+  },
+  "fishing": {
+    "total_samples": 46,
+    "total_gt_pairs": 47,
+    "total_pred_pairs": 54,
+    "matched_pairs_05": 27
+  },
+  "poking": {
+    "total_samples": 46,
+    "total_gt_pairs": 46,
+    "total_pred_pairs": 44,
+    "matched_pairs_05": 22
+  },
+  "licking": {
+    "total_samples": 11,
+    "total_gt_pairs": 11,
+    "total_pred_pairs": 10,
+    "matched_pairs_05": 9
+  },
+  "dialing": {
+    "total_samples": 49,
+    "total_gt_pairs": 49,
+    "total_pred_pairs": 49,
+    "matched_pairs_05": 32
+  },
+  "folding": {
+    "total_samples": 68,
+    "total_gt_pairs": 68,
+    "total_pred_pairs": 79,
+    "matched_pairs_05": 52
+  },
+  "tipping": {
+    "total_samples": 18,
+    "total_gt_pairs": 19,
+    "total_pred_pairs": 18,
+    "matched_pairs_05": 9
+  },
+  "hitting": {
+    "total_samples": 74,
+    "total_gt_pairs": 79,
+    "total_pred_pairs": 71,
+    "matched_pairs_05": 34
+  },
+  "extinguishing": {
+    "total_samples": 63,
+    "total_gt_pairs": 63,
+    "total_pred_pairs": 80,
+    "matched_pairs_05": 16
+  },
+  "cooking": {
+    "total_samples": 109,
+    "total_gt_pairs": 109,
+    "total_pred_pairs": 117,
+    "matched_pairs_05": 51
+  },
+  "admiring": {
+    "total_samples": 37,
+    "total_gt_pairs": 37,
+    "total_pred_pairs": 27,
+    "matched_pairs_05": 10
+  },
+  "splashing": {
+    "total_samples": 22,
+    "total_gt_pairs": 24,
+    "total_pred_pairs": 13,
+    "matched_pairs_05": 5
+  },
+  "dissecting": {
+    "total_samples": 57,
+    "total_gt_pairs": 57,
+    "total_pred_pairs": 77,
+    "matched_pairs_05": 18
+  },
+  "placing": {
+    "total_samples": 71,
+    "total_gt_pairs": 72,
+    "total_pred_pairs": 77,
+    "matched_pairs_05": 48
+  },
+  "selling": {
+    "total_samples": 35,
+    "total_gt_pairs": 35,
+    "total_pred_pairs": 24,
+    "matched_pairs_05": 3
+  },
+  "mending": {
+    "total_samples": 70,
+    "total_gt_pairs": 70,
+    "total_pred_pairs": 74,
+    "matched_pairs_05": 37
+  },
+  "crashing": {
+    "total_samples": 6,
+    "total_gt_pairs": 6,
+    "total_pred_pairs": 7,
+    "matched_pairs_05": 4
+  },
+  "leading": {
+    "total_samples": 38,
+    "total_gt_pairs": 38,
+    "total_pred_pairs": 24,
+    "matched_pairs_05": 11
+  },
+  "wetting": {
+    "total_samples": 42,
+    "total_gt_pairs": 42,
+    "total_pred_pairs": 46,
+    "matched_pairs_05": 24
+  },
+  "tripping": {
+    "total_samples": 13,
+    "total_gt_pairs": 13,
+    "total_pred_pairs": 14,
+    "matched_pairs_05": 2
+  },
+  "bathing": {
+    "total_samples": 44,
+    "total_gt_pairs": 44,
+    "total_pred_pairs": 35,
+    "matched_pairs_05": 10
+  },
+  "nailing": {
+    "total_samples": 125,
+    "total_gt_pairs": 126,
+    "total_pred_pairs": 132,
+    "matched_pairs_05": 50
+  },
+  "ignoring": {
+    "total_samples": 32,
+    "total_gt_pairs": 32,
+    "total_pred_pairs": 0,
+    "matched_pairs_05": 0
+  },
+  "providing": {
+    "total_samples": 68,
+    "total_gt_pairs": 73,
+    "total_pred_pairs": 27,
+    "matched_pairs_05": 13
+  },
+  "commuting": {
+    "total_samples": 43,
+    "total_gt_pairs": 43,
+    "total_pred_pairs": 171,
+    "matched_pairs_05": 16
+  },
+  "sliding": {
+    "total_samples": 34,
+    "total_gt_pairs": 34,
+    "total_pred_pairs": 42,
+    "matched_pairs_05": 20
+  },
+  "sucking": {
+    "total_samples": 20,
+    "total_gt_pairs": 20,
+    "total_pred_pairs": 17,
+    "matched_pairs_05": 13
+  },
+  "helping": {
+    "total_samples": 58,
+    "total_gt_pairs": 58,
+    "total_pred_pairs": 19,
+    "matched_pairs_05": 2
+  },
+  "apprehending": {
+    "total_samples": 47,
+    "total_gt_pairs": 47,
+    "total_pred_pairs": 0,
+    "matched_pairs_05": 0
+  },
+  "shearing": {
+    "total_samples": 96,
+    "total_gt_pairs": 96,
+    "total_pred_pairs": 124,
+    "matched_pairs_05": 66
+  },
+  "moistening": {
+    "total_samples": 23,
+    "total_gt_pairs": 23,
+    "total_pred_pairs": 23,
+    "matched_pairs_05": 12
+  },
+  "plummeting": {
+    "total_samples": 7,
+    "total_gt_pairs": 7,
+    "total_pred_pairs": 6,
+    "matched_pairs_05": 3
+  },
+  "spreading": {
+    "total_samples": 120,
+    "total_gt_pairs": 120,
+    "total_pred_pairs": 122,
+    "matched_pairs_05": 83
+  },
+  "feeding": {
+    "total_samples": 100,
+    "total_gt_pairs": 101,
+    "total_pred_pairs": 69,
+    "matched_pairs_05": 37
+  },
+  "plunging": {
+    "total_samples": 13,
+    "total_gt_pairs": 14,
+    "total_pred_pairs": 11,
+    "matched_pairs_05": 4
+  },
+  "descending": {
+    "total_samples": 35,
+    "total_gt_pairs": 35,
+    "total_pred_pairs": 41,
+    "matched_pairs_05": 0
+  },
+  "releasing": {
+    "total_samples": 35,
+    "total_gt_pairs": 35,
+    "total_pred_pairs": 55,
+    "matched_pairs_05": 22
+  },
+  "shelving": {
+    "total_samples": 90,
+    "total_gt_pairs": 90,
+    "total_pred_pairs": 97,
+    "matched_pairs_05": 49
+  },
+  "crushing": {
+    "total_samples": 43,
+    "total_gt_pairs": 43,
+    "total_pred_pairs": 50,
+    "matched_pairs_05": 19
+  },
+  "stacking": {
+    "total_samples": 43,
+    "total_gt_pairs": 84,
+    "total_pred_pairs": 45,
+    "matched_pairs_05": 19
+  },
+  "detaining": {
+    "total_samples": 48,
+    "total_gt_pairs": 48,
+    "total_pred_pairs": 0,
+    "matched_pairs_05": 0
+  },
+  "patting": {
+    "total_samples": 30,
+    "total_gt_pairs": 30,
+    "total_pred_pairs": 31,
+    "matched_pairs_05": 26
+  },
+  "shopping": {
+    "total_samples": 37,
+    "total_gt_pairs": 37,
+    "total_pred_pairs": 55,
+    "matched_pairs_05": 12
+  },
+  "launching": {
+    "total_samples": 7,
+    "total_gt_pairs": 7,
+    "total_pred_pairs": 4,
+    "matched_pairs_05": 2
+  },
+  "blocking": {
+    "total_samples": 38,
+    "total_gt_pairs": 38,
+    "total_pred_pairs": 10,
+    "matched_pairs_05": 1
+  },
+  "shredding": {
+    "total_samples": 88,
+    "total_gt_pairs": 88,
+    "total_pred_pairs": 92,
+    "matched_pairs_05": 55
+  },
+  "scooping": {
+    "total_samples": 101,
+    "total_gt_pairs": 104,
+    "total_pred_pairs": 116,
+    "matched_pairs_05": 51
+  },
+  "aiming": {
+    "total_samples": 51,
+    "total_gt_pairs": 51,
+    "total_pred_pairs": 51,
+    "matched_pairs_05": 40
+  },
+  "complaining": {
+    "total_samples": 42,
+    "total_gt_pairs": 42,
+    "total_pred_pairs": 2,
+    "matched_pairs_05": 1
+  },
+  "arching": {
+    "total_samples": 2,
+    "total_gt_pairs": 2,
+    "total_pred_pairs": 0,
+    "matched_pairs_05": 0
+  },
+  "covering": {
+    "total_samples": 48,
+    "total_gt_pairs": 51,
+    "total_pred_pairs": 37,
+    "matched_pairs_05": 14
+  },
+  "rowing": {
+    "total_samples": 48,
+    "total_gt_pairs": 48,
+    "total_pred_pairs": 163,
+    "matched_pairs_05": 14
+  },
+  "mining": {
+    "total_samples": 19,
+    "total_gt_pairs": 19,
+    "total_pred_pairs": 20,
+    "matched_pairs_05": 7
+  },
+  "barbecuing": {
+    "total_samples": 46,
+    "total_gt_pairs": 46,
+    "total_pred_pairs": 61,
+    "matched_pairs_05": 20
+  },
+  "dropping": {
+    "total_samples": 47,
+    "total_gt_pairs": 49,
+    "total_pred_pairs": 52,
+    "matched_pairs_05": 20
+  },
+  "examining": {
+    "total_samples": 38,
+    "total_gt_pairs": 38,
+    "total_pred_pairs": 40,
+    "matched_pairs_05": 14
+  },
+  "filling": {
+    "total_samples": 98,
+    "total_gt_pairs": 101,
+    "total_pred_pairs": 99,
+    "matched_pairs_05": 51
+  },
+  "erasing": {
+    "total_samples": 53,
+    "total_gt_pairs": 53,
+    "total_pred_pairs": 53,
+    "matched_pairs_05": 41
+  },
+  "piloting": {
+    "total_samples": 41,
+    "total_gt_pairs": 41,
+    "total_pred_pairs": 50,
+    "matched_pairs_05": 31
+  },
+  "driving": {
+    "total_samples": 48,
+    "total_gt_pairs": 48,
+    "total_pred_pairs": 50,
+    "matched_pairs_05": 41
+  },
+  "clinging": {
+    "total_samples": 11,
+    "total_gt_pairs": 11,
+    "total_pred_pairs": 8,
+    "matched_pairs_05": 3
+  },
+  "flipping": {
+    "total_samples": 34,
+    "total_gt_pairs": 34,
+    "total_pred_pairs": 33,
+    "matched_pairs_05": 16
+  },
+  "asking": {
+    "total_samples": 41,
+    "total_gt_pairs": 41,
+    "total_pred_pairs": 0,
+    "matched_pairs_05": 0
+  },
+  "resting": {
+    "total_samples": 29,
+    "total_gt_pairs": 31,
+    "total_pred_pairs": 26,
+    "matched_pairs_05": 8
+  },
+  "subduing": {
+    "total_samples": 44,
+    "total_gt_pairs": 44,
+    "total_pred_pairs": 4,
+    "matched_pairs_05": 2
+  },
+  "shoveling": {
+    "total_samples": 6,
+    "total_gt_pairs": 6,
+    "total_pred_pairs": 8,
+    "matched_pairs_05": 1
+  },
+  "displaying": {
+    "total_samples": 45,
+    "total_gt_pairs": 45,
+    "total_pred_pairs": 68,
+    "matched_pairs_05": 24
+  },
+  "watering": {
+    "total_samples": 48,
+    "total_gt_pairs": 48,
+    "total_pred_pairs": 51,
+    "matched_pairs_05": 27
+  },
+  "drawing": {
+    "total_samples": 75,
+    "total_gt_pairs": 75,
+    "total_pred_pairs": 64,
+    "matched_pairs_05": 33
+  },
+  "drenching": {
+    "total_samples": 29,
+    "total_gt_pairs": 29,
+    "total_pred_pairs": 17,
+    "matched_pairs_05": 2
+  },
+  "striking": {
+    "total_samples": 80,
+    "total_gt_pairs": 86,
+    "total_pred_pairs": 48,
+    "matched_pairs_05": 8
+  },
+  "waxing": {
+    "total_samples": 43,
+    "total_gt_pairs": 44,
+    "total_pred_pairs": 0,
+    "matched_pairs_05": 0
+  },
+  "submerging": {
+    "total_samples": 12,
+    "total_gt_pairs": 12,
+    "total_pred_pairs": 10,
+    "matched_pairs_05": 3
+  },
+  "crafting": {
+    "total_samples": 58,
+    "total_gt_pairs": 58,
+    "total_pred_pairs": 71,
+    "matched_pairs_05": 22
+  },
+  "kneading": {
+    "total_samples": 46,
+    "total_gt_pairs": 46,
+    "total_pred_pairs": 50,
+    "matched_pairs_05": 37
+  },
+  "tackling": {
+    "total_samples": 46,
+    "total_gt_pairs": 46,
+    "total_pred_pairs": 0,
+    "matched_pairs_05": 0
+  },
+  "rocking": {
+    "total_samples": 59,
+    "total_gt_pairs": 59,
+    "total_pred_pairs": 56,
+    "matched_pairs_05": 37
+  },
+  "constructing": {
+    "total_samples": 84,
+    "total_gt_pairs": 86,
+    "total_pred_pairs": 157,
+    "matched_pairs_05": 26
+  },
+  "curling": {
+    "total_samples": 37,
+    "total_gt_pairs": 37,
+    "total_pred_pairs": 42,
+    "matched_pairs_05": 16
+  },
+  "catching": {
+    "total_samples": 42,
+    "total_gt_pairs": 42,
+    "total_pred_pairs": 47,
+    "matched_pairs_05": 26
+  },
+  "filming": {
+    "total_samples": 70,
+    "total_gt_pairs": 70,
+    "total_pred_pairs": 50,
+    "matched_pairs_05": 23
+  },
+  "attacking": {
+    "total_samples": 28,
+    "total_gt_pairs": 35,
+    "total_pred_pairs": 14,
+    "matched_pairs_05": 4
+  },
+  "sewing": {
+    "total_samples": 91,
+    "total_gt_pairs": 91,
+    "total_pred_pairs": 118,
+    "matched_pairs_05": 43
+  },
+  "turning": {
+    "total_samples": 38,
+    "total_gt_pairs": 38,
+    "total_pred_pairs": 21,
+    "matched_pairs_05": 13
+  },
+  "chewing": {
+    "total_samples": 27,
+    "total_gt_pairs": 27,
+    "total_pred_pairs": 27,
+    "matched_pairs_05": 22
+  },
+  "stretching": {
+    "total_samples": 4,
+    "total_gt_pairs": 4,
+    "total_pred_pairs": 1,
+    "matched_pairs_05": 0
+  },
+  "sprinkling": {
+    "total_samples": 64,
+    "total_gt_pairs": 65,
+    "total_pred_pairs": 55,
+    "matched_pairs_05": 30
+  },
+  "urinating": {
+    "total_samples": 23,
+    "total_gt_pairs": 23,
+    "total_pred_pairs": 24,
+    "matched_pairs_05": 8
+  },
+  "talking": {
+    "total_samples": 43,
+    "total_gt_pairs": 43,
+    "total_pred_pairs": 6,
+    "matched_pairs_05": 2
+  },
+  "scrubbing": {
+    "total_samples": 69,
+    "total_gt_pairs": 69,
+    "total_pred_pairs": 76,
+    "matched_pairs_05": 45
+  },
+  "bandaging": {
+    "total_samples": 47,
+    "total_gt_pairs": 47,
+    "total_pred_pairs": 5,
+    "matched_pairs_05": 5
+  },
+  "whisking": {
+    "total_samples": 80,
+    "total_gt_pairs": 80,
+    "total_pred_pairs": 79,
+    "matched_pairs_05": 53
+  },
+  "stapling": {
+    "total_samples": 122,
+    "total_gt_pairs": 133,
+    "total_pred_pairs": 122,
+    "matched_pairs_05": 86
+  },
+  "skipping": {
+    "total_samples": 33,
+    "total_gt_pairs": 33,
+    "total_pred_pairs": 52,
+    "matched_pairs_05": 11
+  },
+  "encouraging": {
+    "total_samples": 48,
+    "total_gt_pairs": 48,
+    "total_pred_pairs": 0,
+    "matched_pairs_05": 0
+  },
+  "shaving": {
+    "total_samples": 91,
+    "total_gt_pairs": 91,
+    "total_pred_pairs": 78,
+    "matched_pairs_05": 41
+  },
+  "rinsing": {
+    "total_samples": 65,
+    "total_gt_pairs": 65,
+    "total_pred_pairs": 70,
+    "matched_pairs_05": 31
+  },
+  "signing": {
+    "total_samples": 92,
+    "total_gt_pairs": 92,
+    "total_pred_pairs": 104,
+    "matched_pairs_05": 45
+  },
+  "shelling": {
+    "total_samples": 36,
+    "total_gt_pairs": 36,
+    "total_pred_pairs": 51,
+    "matched_pairs_05": 8
+  },
+  "signaling": {
+    "total_samples": 11,
+    "total_gt_pairs": 11,
+    "total_pred_pairs": 5,
+    "matched_pairs_05": 4
+  },
+  "parachuting": {
+    "total_samples": 34,
+    "total_gt_pairs": 34,
+    "total_pred_pairs": 38,
+    "matched_pairs_05": 10
+  },
+  "stirring": {
+    "total_samples": 131,
+    "total_gt_pairs": 131,
+    "total_pred_pairs": 132,
+    "matched_pairs_05": 89
+  },
+  "lifting": {
+    "total_samples": 36,
+    "total_gt_pairs": 36,
+    "total_pred_pairs": 36,
+    "matched_pairs_05": 26
+  },
+  "socializing": {
+    "total_samples": 47,
+    "total_gt_pairs": 47,
+    "total_pred_pairs": 6,
+    "matched_pairs_05": 1
+  },
+  "pouncing": {
+    "total_samples": 1,
+    "total_gt_pairs": 1,
+    "total_pred_pairs": 0,
+    "matched_pairs_05": 0
+  },
+  "disembarking": {
+    "total_samples": 46,
+    "total_gt_pairs": 46,
+    "total_pred_pairs": 185,
+    "matched_pairs_05": 11
+  },
+  "peeling": {
+    "total_samples": 74,
+    "total_gt_pairs": 74,
+    "total_pred_pairs": 72,
+    "matched_pairs_05": 50
+  },
+  "tugging": {
+    "total_samples": 21,
+    "total_gt_pairs": 21,
+    "total_pred_pairs": 42,
+    "matched_pairs_05": 4
+  },
+  "smearing": {
+    "total_samples": 48,
+    "total_gt_pairs": 49,
+    "total_pred_pairs": 55,
+    "matched_pairs_05": 27
+  },
+  "lathering": {
+    "total_samples": 67,
+    "total_gt_pairs": 67,
+    "total_pred_pairs": 44,
+    "matched_pairs_05": 29
+  },
+  "docking": {
+    "total_samples": 23,
+    "total_gt_pairs": 23,
+    "total_pred_pairs": 43,
+    "matched_pairs_05": 8
+  },
+  "destroying": {
+    "total_samples": 16,
+    "total_gt_pairs": 16,
+    "total_pred_pairs": 18,
+    "matched_pairs_05": 10
+  },
+  "sharpening": {
+    "total_samples": 80,
+    "total_gt_pairs": 81,
+    "total_pred_pairs": 81,
+    "matched_pairs_05": 45
+  },
+  "jumping": {
+    "total_samples": 8,
+    "total_gt_pairs": 10,
+    "total_pred_pairs": 13,
+    "matched_pairs_05": 2
+  },
+  "fetching": {
+    "total_samples": 18,
+    "total_gt_pairs": 18,
+    "total_pred_pairs": 22,
+    "matched_pairs_05": 5
+  },
+  "ramming": {
+    "total_samples": 18,
+    "total_gt_pairs": 22,
+    "total_pred_pairs": 9,
+    "matched_pairs_05": 5
+  },
+  "dusting": {
+    "total_samples": 87,
+    "total_gt_pairs": 87,
+    "total_pred_pairs": 94,
+    "matched_pairs_05": 51
+  },
+  "butting": {
+    "total_samples": 14,
+    "total_gt_pairs": 14,
+    "total_pred_pairs": 1,
+    "matched_pairs_05": 1
+  },
+  "chasing": {
+    "total_samples": 12,
+    "total_gt_pairs": 12,
+    "total_pred_pairs": 4,
+    "matched_pairs_05": 2
+  },
+  "deflecting": {
+    "total_samples": 38,
+    "total_gt_pairs": 38,
+    "total_pred_pairs": 31,
+    "matched_pairs_05": 11
+  },
+  "spraying": {
+    "total_samples": 72,
+    "total_gt_pairs": 73,
+    "total_pred_pairs": 70,
+    "matched_pairs_05": 35
+  },
+  "sowing": {
+    "total_samples": 12,
+    "total_gt_pairs": 12,
+    "total_pred_pairs": 14,
+    "matched_pairs_05": 3
+  },
+  "clearing": {
+    "total_samples": 52,
+    "total_gt_pairs": 54,
+    "total_pred_pairs": 61,
+    "matched_pairs_05": 11
+  },
+  "exercising": {
+    "total_samples": 2,
+    "total_gt_pairs": 2,
+    "total_pred_pairs": 0,
+    "matched_pairs_05": 0
+  },
+  "eating": {
+    "total_samples": 59,
+    "total_gt_pairs": 59,
+    "total_pred_pairs": 62,
+    "matched_pairs_05": 37
+  },
+  "grinding": {
+    "total_samples": 69,
+    "total_gt_pairs": 69,
+    "total_pred_pairs": 69,
+    "matched_pairs_05": 29
+  },
+  "writing": {
+    "total_samples": 91,
+    "total_gt_pairs": 91,
+    "total_pred_pairs": 93,
+    "matched_pairs_05": 59
+  },
+  "tearing": {
+    "total_samples": 46,
+    "total_gt_pairs": 46,
+    "total_pred_pairs": 49,
+    "matched_pairs_05": 35
+  },
+  "tying": {
+    "total_samples": 95,
+    "total_gt_pairs": 102,
+    "total_pred_pairs": 82,
+    "matched_pairs_05": 43
+  },
+  "squinting": {
+    "total_samples": 8,
+    "total_gt_pairs": 8,
+    "total_pred_pairs": 9,
+    "matched_pairs_05": 4
+  },
+  "glaring": {
+    "total_samples": 7,
+    "total_gt_pairs": 7,
+    "total_pred_pairs": 0,
+    "matched_pairs_05": 0
+  },
+  "spanking": {
+    "total_samples": 60,
+    "total_gt_pairs": 61,
+    "total_pred_pairs": 11,
+    "matched_pairs_05": 4
+  },
+  "educating": {
+    "total_samples": 52,
+    "total_gt_pairs": 52,
+    "total_pred_pairs": 10,
+    "matched_pairs_05": 3
+  },
+  "crowning": {
+    "total_samples": 83,
+    "total_gt_pairs": 89,
+    "total_pred_pairs": 37,
+    "matched_pairs_05": 19
+  },
+  "carving": {
+    "total_samples": 83,
+    "total_gt_pairs": 83,
+    "total_pred_pairs": 84,
+    "matched_pairs_05": 53
+  },
+  "sealing": {
+    "total_samples": 74,
+    "total_gt_pairs": 75,
+    "total_pred_pairs": 76,
+    "matched_pairs_05": 38
+  },
+  "hunting": {
+    "total_samples": 12,
+    "total_gt_pairs": 12,
+    "total_pred_pairs": 20,
+    "matched_pairs_05": 7
+  },
+  "pouring": {
+    "total_samples": 111,
+    "total_gt_pairs": 112,
+    "total_pred_pairs": 107,
+    "matched_pairs_05": 55
+  },
+  "training": {
+    "total_samples": 41,
+    "total_gt_pairs": 41,
+    "total_pred_pairs": 3,
+    "matched_pairs_05": 2
+  },
+  "nipping": {
+    "total_samples": 6,
+    "total_gt_pairs": 6,
+    "total_pred_pairs": 6,
+    "matched_pairs_05": 3
+  },
+  "scratching": {
+    "total_samples": 31,
+    "total_gt_pairs": 31,
+    "total_pred_pairs": 28,
+    "matched_pairs_05": 4
+  },
+  "ejecting": {
+    "total_samples": 24,
+    "total_gt_pairs": 24,
+    "total_pred_pairs": 27,
+    "matched_pairs_05": 10
+  },
+  "arresting": {
+    "total_samples": 49,
+    "total_gt_pairs": 49,
+    "total_pred_pairs": 0,
+    "matched_pairs_05": 0
+  },
+  "unloading": {
+    "total_samples": 86,
+    "total_gt_pairs": 86,
+    "total_pred_pairs": 128,
+    "matched_pairs_05": 42
+  },
+  "floating": {
+    "total_samples": 10,
+    "total_gt_pairs": 10,
+    "total_pred_pairs": 26,
+    "matched_pairs_05": 2
+  },
+  "clawing": {
+    "total_samples": 5,
+    "total_gt_pairs": 5,
+    "total_pred_pairs": 0,
+    "matched_pairs_05": 0
+  },
+  "planting": {
+    "total_samples": 34,
+    "total_gt_pairs": 34,
+    "total_pred_pairs": 32,
+    "matched_pairs_05": 2
+  },
+  "burning": {
+    "total_samples": 32,
+    "total_gt_pairs": 32,
+    "total_pred_pairs": 36,
+    "matched_pairs_05": 14
+  },
+  "leaping": {
+    "total_samples": 9,
+    "total_gt_pairs": 9,
+    "total_pred_pairs": 7,
+    "matched_pairs_05": 4
+  },
+  "speaking": {
+    "total_samples": 20,
+    "total_gt_pairs": 20,
+    "total_pred_pairs": 2,
+    "matched_pairs_05": 1
+  },
+  "shouting": {
+    "total_samples": 18,
+    "total_gt_pairs": 18,
+    "total_pred_pairs": 5,
+    "matched_pairs_05": 5
+  },
+  "winking": {
+    "total_samples": 2,
+    "total_gt_pairs": 2,
+    "total_pred_pairs": 1,
+    "matched_pairs_05": 1
+  },
+  "staring": {
+    "total_samples": 13,
+    "total_gt_pairs": 13,
+    "total_pred_pairs": 14,
+    "matched_pairs_05": 9
+  },
+  "spitting": {
+    "total_samples": 38,
+    "total_gt_pairs": 38,
+    "total_pred_pairs": 37,
+    "matched_pairs_05": 12
+  },
+  "waving": {
+    "total_samples": 6,
+    "total_gt_pairs": 6,
+    "total_pred_pairs": 6,
+    "matched_pairs_05": 2
+  },
+  "gnawing": {
+    "total_samples": 11,
+    "total_gt_pairs": 11,
+    "total_pred_pairs": 11,
+    "matched_pairs_05": 7
+  },
+  "whistling": {
+    "total_samples": 18,
+    "total_gt_pairs": 18,
+    "total_pred_pairs": 18,
+    "matched_pairs_05": 10
+  },
+  "dripping": {
+    "total_samples": 16,
+    "total_gt_pairs": 16,
+    "total_pred_pairs": 10,
+    "matched_pairs_05": 4
+  },
+  "giggling": {
+    "total_samples": 10,
+    "total_gt_pairs": 10,
+    "total_pred_pairs": 0,
+    "matched_pairs_05": 0
+  },
+  "drying": {
+    "total_samples": 44,
+    "total_gt_pairs": 45,
+    "total_pred_pairs": 69,
+    "matched_pairs_05": 24
+  },
+  "braiding": {
+    "total_samples": 7,
+    "total_gt_pairs": 7,
+    "total_pred_pairs": 7,
+    "matched_pairs_05": 4
+  },
+  "distracting": {
+    "total_samples": 9,
+    "total_gt_pairs": 9,
+    "total_pred_pairs": 0,
+    "matched_pairs_05": 0
+  },
+  "foraging": {
+    "total_samples": 7,
+    "total_gt_pairs": 7,
+    "total_pred_pairs": 8,
+    "matched_pairs_05": 2
+  },
+  "shushing": {
+    "total_samples": 6,
+    "total_gt_pairs": 6,
+    "total_pred_pairs": 0,
+    "matched_pairs_05": 0
+  },
+  "retrieving": {
+    "total_samples": 3,
+    "total_gt_pairs": 3,
+    "total_pred_pairs": 4,
+    "matched_pairs_05": 3
+  },
+  "bulldozing": {
+    "total_samples": 6,
+    "total_gt_pairs": 6,
+    "total_pred_pairs": 5,
+    "matched_pairs_05": 0
+  },
+  "shaking": {
+    "total_samples": 2,
+    "total_gt_pairs": 2,
+    "total_pred_pairs": 2,
+    "matched_pairs_05": 1
+  },
+  "saluting": {
+    "total_samples": 7,
+    "total_gt_pairs": 7,
+    "total_pred_pairs": 2,
+    "matched_pairs_05": 2
+  },
+  "stumbling": {
+    "total_samples": 3,
+    "total_gt_pairs": 3,
+    "total_pred_pairs": 7,
+    "matched_pairs_05": 2
+  },
+  "flicking": {
+    "total_samples": 4,
+    "total_gt_pairs": 4,
+    "total_pred_pairs": 4,
+    "matched_pairs_05": 4
+  },
+  "emerging": {
+    "total_samples": 5,
+    "total_gt_pairs": 5,
+    "total_pred_pairs": 5,
+    "matched_pairs_05": 3
+  },
+  "rehabilitating": {
+    "total_samples": 5,
+    "total_gt_pairs": 5,
+    "total_pred_pairs": 0,
+    "matched_pairs_05": 0
+  },
+  "pinching": {
+    "total_samples": 10,
+    "total_gt_pairs": 13,
+    "total_pred_pairs": 7,
+    "matched_pairs_05": 6
+  },
+  "mopping": {
+    "total_samples": 1,
+    "total_gt_pairs": 1,
+    "total_pred_pairs": 1,
+    "matched_pairs_05": 0
+  },
+  "recovering": {
+    "total_samples": 1,
+    "total_gt_pairs": 1,
+    "total_pred_pairs": 0,
+    "matched_pairs_05": 0
+  },
+  "wagging": {
+    "total_samples": 4,
+    "total_gt_pairs": 4,
+    "total_pred_pairs": 0,
+    "matched_pairs_05": 0
+  },
+  "grimacing": {
+    "total_samples": 2,
+    "total_gt_pairs": 2,
+    "total_pred_pairs": 1,
+    "matched_pairs_05": 0
+  },
+  "wading": {
+    "total_samples": 1,
+    "total_gt_pairs": 1,
+    "total_pred_pairs": 2,
+    "matched_pairs_05": 0
+  },
+  "moisturizing": {
+    "total_samples": 12,
+    "total_gt_pairs": 12,
+    "total_pred_pairs": 7,
+    "matched_pairs_05": 3
+  },
+  "nuzzling": {
+    "total_samples": 3,
+    "total_gt_pairs": 3,
+    "total_pred_pairs": 4,
+    "matched_pairs_05": 3
+  },
+  "flossing": {
+    "total_samples": 1,
+    "total_gt_pairs": 1,
+    "total_pred_pairs": 0,
+    "matched_pairs_05": 0
+  },
+  "circling": {
+    "total_samples": 1,
+    "total_gt_pairs": 1,
+    "total_pred_pairs": 0,
+    "matched_pairs_05": 0
+  },
+  "puckering": {
+    "total_samples": 1,
+    "total_gt_pairs": 1,
+    "total_pred_pairs": 1,
+    "matched_pairs_05": 0
+  },
+  "clapping": {
+    "total_samples": 1,
+    "total_gt_pairs": 1,
+    "total_pred_pairs": 0,
+    "matched_pairs_05": 0
+  }
+}

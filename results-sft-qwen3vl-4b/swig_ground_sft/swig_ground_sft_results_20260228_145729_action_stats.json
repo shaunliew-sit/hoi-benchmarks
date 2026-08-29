@@ -1,0 +1,44 @@
+{
+  "tattooing": {
+    "total_samples": 2,
+    "total_gt_pairs": 2,
+    "total_pred_pairs": 1,
+    "matched_pairs_05": 0
+  },
+  "boarding": {
+    "total_samples": 1,
+    "total_gt_pairs": 1,
+    "total_pred_pairs": 1,
+    "matched_pairs_05": 1
+  },
+  "putting": {
+    "total_samples": 2,
+    "total_gt_pairs": 2,
+    "total_pred_pairs": 2,
+    "matched_pairs_05": 2
+  },
+  "twisting": {
+    "total_samples": 1,
+    "total_gt_pairs": 1,
+    "total_pred_pairs": 1,
+    "matched_pairs_05": 1
+  },
+  "swinging": {
+    "total_samples": 1,
+    "total_gt_pairs": 1,
+    "total_pred_pairs": 1,
+    "matched_pairs_05": 1
+  },
+  "pooing": {
+    "total_samples": 1,
+    "total_gt_pairs": 1,
+    "total_pred_pairs": 0,
+    "matched_pairs_05": 0
+  },
+  "molding": {
+    "total_samples": 2,
+    "total_gt_pairs": 2,
+    "total_pred_pairs": 2,
+    "matched_pairs_05": 1
+  }
+}

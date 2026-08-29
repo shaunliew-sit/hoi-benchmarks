@@ -1,0 +1,154 @@
+{
+  "_comment": "9-model comparison: HICO grounding + SWIG referring. grounding.swig and referring.hico are null (not part of this comparison). Run: stratify_all_tasks.py --models-config models_compare.json --out stratified_compare.json. Claude/GPT grounding use the normalized files from convert_custom_grounding.py. NOTE: claude_result and gpt_result hold byte-identical data -> claude and gpt rows will match until the source files are fixed.",
+  "row_order": [
+    "qwen4b",
+    "qwen8b",
+    "sft",
+    "grpo",
+    "qwen32b",
+    "internvl3-8b",
+    "internvl3-38b",
+    "groma7b",
+    "groma7b-hoi",
+    "claude",
+    "gpt"
+  ],
+  "row_labels": {
+    "qwen4b": "Qwen3-VL-4B",
+    "qwen8b": "Qwen3-VL-8B",
+    "qwen32b": "Qwen3-VL-32B",
+    "internvl3-8b": "InternVL3-8B",
+    "internvl3-38b": "InternVL3-38B",
+    "groma7b": "Groma-7B",
+    "groma7b-hoi": "Groma-7B-HOI-FT",
+    "claude": "Claude-4.5-Opus",
+    "gpt": "GPT-5.2",
+    "sft": "Qwen3-VL-8B+SFT",
+    "grpo": "Qwen3-VL-8B+SFT+GRPO"
+  },
+  "grounding": {
+    "qwen4b": {
+      "hico": "/workspace/hoi-benchmarks/results-baseline-qwen3vl-4b-instruct/hico_ground_qwen3vl_instruct/hico_ground_qwen3vl_results_20260302_132553.json",
+      "swig": null
+    },
+    "qwen8b": {
+      "hico": "/workspace/Groma/results-redo/hico_ground_qwen3vl_8B/hico_ground_qwen3vl_results_20251104_025034.json",
+      "swig": null
+    },
+    "qwen32b": {
+      "hico": "/workspace/Groma/results-redo/hico_ground_qwen3vl_32B/hico_ground_qwen3vl_results_20251104_080423.json",
+      "swig": null
+    },
+    "internvl3-8b": {
+      "hico": "/workspace/Groma/results-redo/hico_ground_internvl3/hico_ground_internvl3_results_20251104_023859.json",
+      "swig": null
+    },
+    "internvl3-38b": {
+      "hico": "/workspace/Groma/results-redo/hico_ground_internvl3-38B/hico_ground_internvl3_results_20251105_095025.json",
+      "swig": null
+    },
+    "groma7b": {
+      "hico": "/workspace/hoi-benchmarks/groma-original-result/hico_ground/hico_ground_results_20260223_095233.json",
+      "swig": null
+    },
+    "groma7b-hoi": {
+      "hico": "/workspace/Groma/results-redo-groma/hico_ground/hico_ground_results_20251112_033833.json",
+      "swig": null
+    },
+    "claude": {
+      "hico": "/workspace/hoi-benchmarks/claude_result/hico_ground_normalized.json",
+      "swig": null
+    },
+    "gpt": {
+      "hico": "/workspace/hoi-benchmarks/gpt_result/hico_ground_normalized.json",
+      "swig": null
+    },
+    "sft": {
+      "hico": "/workspace/hoi-benchmarks/results-sftgrpo/hico_ground_sft/hico_ground_sft_results_20260622_095927.json",
+      "swig": null
+    },
+    "grpo": {
+      "hico": "/workspace/hoi-benchmarks/results-sftgrpo/hico_ground_grpo/hico_ground_sft_results_20260621_102754.json",
+      "swig": null
+    }
+  },
+  "referring": {
+    "qwen4b": {
+      "hico": null,
+      "swig": {
+        "pred": "/workspace/hoi-benchmarks/results-baseline-qwen3vl-4b-instruct/swig_action_qwen3vl_instruct/swig_action_qwen3vl_results_20260302_132455_per_triplet.json",
+        "bert": "/workspace/hoi-benchmarks/results-baseline-qwen3vl-4b-instruct/swig_action_qwen3vl_instruct/swig_action_qwen3vl_results_20260302_132455_per_triplet_bertscore.json"
+      }
+    },
+    "qwen8b": {
+      "hico": null,
+      "swig": {
+        "pred": "/workspace/Groma/results/swig_action_qwen3vl/swig_action_qwen3vl_results_20251031_103142_per_triplet.json",
+        "bert": "/workspace/Groma/results/swig_action_qwen3vl/swig_action_qwen3vl_results_20251031_103142_per_triplet_bertscore_deberta-v2-xxlarge-mnli.json"
+      }
+    },
+    "qwen32b": {
+      "hico": null,
+      "swig": {
+        "pred": "/workspace/Groma/results-new/swig_action_qwen3vl_32b/swig_action_qwen3vl_results_20251102_131217_per_triplet.json",
+        "bert": "/workspace/Groma/results-new/swig_action_qwen3vl_32b/swig_action_qwen3vl_results_20251102_131217_per_triplet_bertscore_deberta-v2-xxlarge-mnli.json"
+      }
+    },
+    "internvl3-8b": {
+      "hico": null,
+      "swig": {
+        "pred": "/workspace/Groma/results-redo/swig_action_internvl3-8B/swig_action_internvl3_results_20251104_040939_per_triplet.json",
+        "bert": "/workspace/Groma/results-redo/swig_action_internvl3-8B/swig_action_internvl3_results_20251104_040939_per_triplet_bertscore_deberta-v2-xxlarge-mnli.json"
+      }
+    },
+    "internvl3-38b": {
+      "hico": null,
+      "swig": {
+        "pred": "/workspace/Groma/results-redo/swig_action_internvl3-38B/swig_action_internvl3_results_20251105_023748_per_triplet.json",
+        "bert": "/workspace/Groma/results-redo/swig_action_internvl3-38B/swig_action_internvl3_results_20251105_023748_per_triplet_bertscore_deberta-v2-xxlarge-mnli.json"
+      }
+    },
+    "groma7b": {
+      "hico": null,
+      "swig": {
+        "pred": "/workspace/hoi-benchmarks/groma-original-result/swig_action/swig_action_predictions_20260225_014516_per_triplet.json",
+        "bert": "/workspace/hoi-benchmarks/groma-original-result/swig_action/swig_action_predictions_20260225_014516_per_triplet_bertscore.json"
+      }
+    },
+    "groma7b-hoi": {
+      "hico": null,
+      "swig": {
+        "pred": "/workspace/Groma/results-redo-groma/swig_action_referring/swig_action_predictions_20251111_095839_per_triplet.json",
+        "bert": "/workspace/Groma/results-redo-groma/swig_action_referring/swig_action_predictions_20251111_095839_per_triplet_bertscore.json"
+      }
+    },
+    "claude": {
+      "hico": null,
+      "swig": {
+        "pred": "/workspace/hoi-benchmarks/claude_result/swig_action_result.json",
+        "bert": "/workspace/hoi-benchmarks/claude_result/swig_action_result_bertscore.json"
+      }
+    },
+    "gpt": {
+      "hico": null,
+      "swig": {
+        "pred": "/workspace/hoi-benchmarks/gpt_result/swig_action_result.json",
+        "bert": "/workspace/hoi-benchmarks/claude_result/swig_action_result_bertscore.json"
+      }
+    },
+    "sft": {
+      "hico": null,
+      "swig": {
+        "pred": "/workspace/hoi-benchmarks/results-sftgrpo/swig_action_sft/swig_action_sft_results_20260622_095932_per_triplet.json",
+        "bert": "/workspace/hoi-benchmarks/results-sftgrpo/swig_action_sft/swig_action_sft_results_20260622_095932_per_triplet_bertscore.json"
+      }
+    },
+    "grpo": {
+      "hico": null,
+      "swig": {
+        "pred": "/workspace/hoi-benchmarks/results-sftgrpo/swig_action_grpo/swig_action_sft_results_20260621_102820_per_triplet.json",
+        "bert": "/workspace/hoi-benchmarks/results-sftgrpo/swig_action_grpo/swig_action_sft_results_20260621_102820_per_triplet_bertscore.json"
+      }
+    }
+  }
+}

@@ -1,0 +1,64 @@
+{
+    "_comment": "4B stratification (+ 8B grpo as cross-check vs published paper strata). For stratify_all_tasks.py.",
+    "row_order": ["grpo", "base_4b", "sft_4b", "grpo_4b"],
+    "row_labels": {
+        "grpo": "SAHA-8B(xcheck)",
+        "base_4b": "Qwen3-VL-4B",
+        "sft_4b": "SAHA-4B +SFT",
+        "grpo_4b": "SAHA-4B Full"
+    },
+    "grounding": {
+        "grpo": {
+            "hico": "/workspace/hoi-benchmarks/results-sftgrpo/hico_ground_grpo/hico_ground_sft_results_20260621_102754.json",
+            "swig": "/workspace/hoi-benchmarks/results-sftgrpo/swig_ground_grpo/swig_ground_sft_results_20260621_102826.json"
+        },
+        "base_4b": {
+            "hico": "/workspace/hoi-benchmarks/results-baseline-qwen3vl-4b-instruct/hico_ground_qwen3vl_instruct/hico_ground_qwen3vl_results_20260302_132553.json",
+            "swig": "/workspace/hoi-benchmarks/results-baseline-qwen3vl-4b-instruct/swig_ground_qwen3vl_instruct/swig_ground_qwen3vl_results_20260302_132422.json"
+        },
+        "sft_4b": {
+            "hico": "/workspace/hoi-benchmarks/results-sftgrpo/hico_ground_sft_4b/hico_ground_sft_results_20260624_142154.json",
+            "swig": "/workspace/hoi-benchmarks/results-sftgrpo/swig_ground_sft_4b/swig_ground_sft_results_20260624_142221.json"
+        },
+        "grpo_4b": {
+            "hico": "/workspace/hoi-benchmarks/results-sftgrpo/hico_ground_grpo_4b/hico_ground_sft_results_20260625_132944.json",
+            "swig": "/workspace/hoi-benchmarks/results-sftgrpo/swig_ground_grpo_4b/swig_ground_sft_results_20260625_132930.json"
+        }
+    },
+    "referring": {
+        "grpo": {
+            "hico": {
+                "pred": "/workspace/hoi-benchmarks/results-sftgrpo/hico_action_grpo/hico_action_sft_results_20260621_102804_per_triplet.json",
+                "bert": "/workspace/hoi-benchmarks/results-sftgrpo/hico_action_grpo/hico_action_sft_results_20260621_102804_per_triplet_bertscore.json"
+            },
+            "swig": {
+                "pred": "/workspace/hoi-benchmarks/results-sftgrpo/swig_action_grpo/swig_action_sft_results_20260621_102820_per_triplet.json",
+                "bert": "/workspace/hoi-benchmarks/results-sftgrpo/swig_action_grpo/swig_action_sft_results_20260621_102820_per_triplet_bertscore.json"
+            }
+        },
+        "base_4b": {
+            "hico": {"pred": null, "bert": null},
+            "swig": {"pred": null, "bert": null}
+        },
+        "sft_4b": {
+            "hico": {
+                "pred": "/workspace/hoi-benchmarks/results-sftgrpo/hico_action_sft_4b/hico_action_sft_results_20260624_142209_per_triplet.json",
+                "bert": "/workspace/hoi-benchmarks/results-sftgrpo/hico_action_sft_4b/hico_action_sft_results_20260624_142209_per_triplet_bertscore_deberta-v2-xxlarge-mnli.json"
+            },
+            "swig": {
+                "pred": "/workspace/hoi-benchmarks/results-sftgrpo/swig_action_sft_4b/swig_action_sft_results_20260624_142231_per_triplet.json",
+                "bert": "/workspace/hoi-benchmarks/results-sftgrpo/swig_action_sft_4b/swig_action_sft_results_20260624_142231_per_triplet_bertscore_deberta-v2-xxlarge-mnli.json"
+            }
+        },
+        "grpo_4b": {
+            "hico": {
+                "pred": "/workspace/hoi-benchmarks/results-sftgrpo/hico_action_grpo_4b/hico_action_sft_results_20260625_132954_per_triplet.json",
+                "bert": "/workspace/hoi-benchmarks/results-sftgrpo/hico_action_grpo_4b/hico_action_sft_results_20260625_132954_per_triplet_bertscore_deberta-v2-xxlarge-mnli.json"
+            },
+            "swig": {
+                "pred": "/workspace/hoi-benchmarks/results-sftgrpo/swig_action_grpo_4b/swig_action_sft_results_20260625_132948_per_triplet.json",
+                "bert": "/workspace/hoi-benchmarks/results-sftgrpo/swig_action_grpo_4b/swig_action_sft_results_20260625_132948_per_triplet_bertscore_deberta-v2-xxlarge-mnli.json"
+            }
+        }
+    }
+}

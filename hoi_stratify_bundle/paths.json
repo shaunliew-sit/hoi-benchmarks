@@ -1,0 +1,13 @@
+{
+  "_comment": "EDIT THESE for your server. Test-set annotation files (simplified format with file_name,width,height,boxes,gt_box_inds,num_pairs for grounding; +person_box_idx,object_box_idx,gt_action for referring), the YOLOE proposals directory (one <image_stem>.json per image with proposals[].bbox_1000), and the cache output path.",
+  "ann_ground": {
+    "hico": "/workspace/Groma/groma_data/benchmarks_simplified/hico_ground_test_simplified.json",
+    "swig": "/workspace/Groma/groma_data/benchmarks_simplified/swig_ground_test_simplified.json"
+  },
+  "ann_refer": {
+    "hico": "/workspace/Groma/groma_data/benchmarks_simplified/hico_action_referring_test_simplified.json",
+    "swig": "/workspace/Groma/groma_data/benchmarks_simplified/swig_action_referring_test_simplified.json"
+  },
+  "proposals_dir": "/workspace/hoi-tool-use-checkpoints/test_proposals",
+  "cache": "sref_cache.json"
+}

@@ -1,4 +1,4 @@
-#!/bin/bash
+    #!/bin/bash
 ################################################################################
 # HICO-DET Action Referring Evaluation for SFT-trained Qwen3VL (Tool-Use Agent)
 #
@@ -17,11 +17,11 @@
 set -eo pipefail
 
 GPU_ID="${1:-0}"
-VLLM_URL="${2:-http://localhost:8000}"
+VLLM_URL="${2:-http://vllm-qwen-inference-2:8000}"
 CHECKPOINT_PATH="${CHECKPOINT_PATH:-/media/shaun/workspace/AdaTooler-V/checkpoints/qwen3VL-4B}"
 # GPU server (RTX 6000 Ada): CHECKPOINT_PATH="${CHECKPOINT_PATH:-/mnt/d/Work/latest_checkpoints/sft-checkpoints/qwen3VL-4B}"
-OUTPUT_DIR="${OUTPUT_DIR:-results-sft/hico_action_sft}"
-MAX_TURNS="${MAX_TURNS:-5}"
+OUTPUT_DIR="${OUTPUT_DIR:-results-sft-grpo-qwen3vl-8b-step1000/hico_action_sft}"
+MAX_TURNS="${MAX_TURNS:-100}"
 
 if [[ "$GPU_ID" == cuda:* ]]; then
     GPU_NUM="${GPU_ID#cuda:}"
@@ -35,9 +35,9 @@ TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 LOG_FILE="$OUTPUT_DIR/hico_action_sft_evaluation_${TIMESTAMP}.log"
 PRED_FILE="$OUTPUT_DIR/hico_action_sft_results_${TIMESTAMP}.json"
 
-ANN_FILE="../dataset/benchmarks_simplified/hico_action_referring_test_simplified.json"
-IMG_PREFIX="../dataset/hico_20160224_det/images/test2015"
-PROPOSALS_DIR="../../hoi-dataset-curation/output/test_proposals"
+ANN_FILE="/workspace/Groma/groma_data/benchmarks_simplified/hico_action_referring_test_simplified.json"
+IMG_PREFIX="/workspace/data/hico_20160224_det/images/test2015"
+PROPOSALS_DIR="/workspace/hoi-tool-use-checkpoints/test_proposals"
 # GPU server (RTX 6000 Ada):
 # ANN_FILE="/mnt/d/Work/data/benchmarks_simplified/hico_action_referring_test_simplified.json"
 # IMG_PREFIX="/mnt/d/Work/data/hico_20160224_det/images/test2015"

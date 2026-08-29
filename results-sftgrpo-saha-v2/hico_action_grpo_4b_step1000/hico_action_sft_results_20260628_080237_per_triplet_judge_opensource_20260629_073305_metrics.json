@@ -1,0 +1,8 @@
+{
+  "model": "nemotron-49b",
+  "average_score": 5.724343235944022,
+  "valid_samples": 32584,
+  "total_samples": 32584,
+  "timestamp": "20260629_073305",
+  "input_file": "results-sftgrpo-saha-v2/hico_action_grpo_4b_step1000/hico_action_sft_results_20260628_080237_per_triplet.json"
+}

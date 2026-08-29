@@ -22,8 +22,9 @@
 #   bash run_hico_action_referring_eval_qwen3vl.sh 1                    # Use GPU 1
 #   VERBOSE=1 bash run_hico_action_referring_eval_qwen3vl.sh 0          # Show per-triplet results
 #   MAX_IMAGES=10 bash run_hico_action_referring_eval_qwen3vl.sh 0      # Test on first 10 triplets
-#   VERBOSE=1 MAX_IMAGES=10 bash run_hico_action_referring_eval_qwen3vl.sh 1
-#   WANDB=1 bash run_hico_action_referring_eval_qwen3vl.sh 0            # Enable WandB
+#   VLLM_URL=http://vllm-qwen-inference:8000 VERBOSE=1 MAX_IMAGES=10 bash run_hico_action_referring_eval_qwen3vl.sh 0
+#   VLLM_URL=http://vllm-qwen-inference:8000 VERBOSE=1 WANDB=1 bash run_hico_action_referring_eval_qwen3vl.sh 0            # Enable WandB
+#   IMAGE_ID=HICO_test2015_00003584.jpg bash run_hico_action_referring_eval_qwen3vl.sh 0    # Test on a specific image
 #
 # Environment Variables:
 #   VERBOSE=1         Show per-triplet results + action visualizations
@@ -46,8 +47,8 @@ set -eo pipefail  # Exit on error; pipefail ensures Python errors aren't masked 
 
 # Configuration with defaults
 GPU_ID="${1:-0}"
-MODEL_NAME="${2:-Qwen/Qwen3-VL-8B-Thinking}"
-OUTPUT_DIR="${3:-results-redo/hico_action_qwen3vl_thinking}"
+MODEL_NAME="${2:-Qwen/Qwen3-VL-4B-Instruct}"
+OUTPUT_DIR="${3:-results-baseline-qwen3vl-4b-instruct/hico_action_qwen3vl_instruct}"
 
 # Set GPU (handle both "0" and "cuda:0" formats)
 if [[ "$GPU_ID" == cuda:* ]]; then
@@ -67,8 +68,8 @@ TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 LOG_FILE="$OUTPUT_DIR/hico_action_qwen3vl_evaluation_${TIMESTAMP}.log"
 
 # HICO dataset paths
-ANN_FILE="../dataset/benchmarks_simplified/hico_action_referring_test_simplified.json"
-IMG_PREFIX="../dataset/hico_20160224_det/images/test2015"
+ANN_FILE="/workspace/Groma/groma_data/benchmarks_simplified/hico_action_referring_test_simplified.json"
+IMG_PREFIX="/workspace/data/hico_20160224_det/images/test2015"
 PRED_FILE="${OUTPUT_DIR}/hico_action_qwen3vl_results_${TIMESTAMP}.json"
 
 if [ -z "$VLLM_URL" ]; then

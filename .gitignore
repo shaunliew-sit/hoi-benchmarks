@@ -17,3 +17,27 @@ cache/
 wandb/
 gemini-3-pro-preview/
 results-redo/
+results-sft-grpo-step140/
+results-sft-qwen3vl-4b/
+results-baseline-qwen3vl-4b-instruct/
+results-sft-grpo-new/
+results-sft-qwen3vl-4b-new/
+results-grpo-new/
+visualizations*/
+visualizations-sft/
+
+# --- 2026-08-29: server migration ---
+# Raw eval dumps: ~180 GB of per-sample JSON + visualization PNGs. The metrics
+# files inside them are force-added (git add -f) so the paper numbers stay in git
+# without the payload.
+results*/
+rresults*/
+# Large one-off artifact bundles (transfer out-of-band if needed)
+judge_results_gathered/
+groma-original-result/
+efficiency_figures_bundle/
+claude_result/
+gpt_result/
+logs/
+hoi_stratify_bundle.tar.gz
+.vscode/

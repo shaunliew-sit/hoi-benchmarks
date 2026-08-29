@@ -28,12 +28,12 @@
 #
 #   # With optional flags (set as environment variables)
 #   VERBOSE=1 bash scripts/run_swig_action_referring_eval_qwen3vl.sh 0          # Show per-triplet results
-#   MAX_IMAGES=10 bash scripts/run_swig_action_referring_eval_qwen3vl.sh 0      # Test on first 10 triplets
-#   VERBOSE=1 MAX_IMAGES=10 bash scripts/run_swig_action_referring_eval_qwen3vl.sh 1  # Both flags
+#   VLLM_URL=http://vllm-qwen-inference:8000 MAX_IMAGES=10 VERBOSE=1 bash run_swig_action_referring_eval_qwen3vl.sh 0      # Test on first 10 triplets
+#   VLLM_URL=http://vllm-qwen-inference:8000 VERBOSE=1 MAX_IMAGES=10 bash run_swig_action_referring_eval_qwen3vl.sh 0  # Both flags
 #
 #   # With Weights & Biases logging
 #   WANDB=1 bash scripts/run_swig_action_referring_eval_qwen3vl.sh 0            # Enable WandB
-#   VERBOSE=1 WANDB=1 bash scripts/run_swig_action_referring_eval_qwen3vl.sh 1      # Both flags
+#   VLLM_URL=http://vllm-qwen-inference:8000 VERBOSE=1 WANDB=1 bash run_swig_action_referring_eval_qwen3vl.sh 0      # Both flags
 #   WANDB=1 WANDB_PROJECT="qwen3vl-swig-action" bash scripts/run_swig_action_referring_eval_qwen3vl.sh 0
 #
 #   # Use different model sizes and types
@@ -68,8 +68,8 @@ set -eo pipefail  # Exit on error; pipefail ensures Python errors aren't masked 
 
 # Configuration with defaults
 GPU_ID="${1:-0}"
-MODEL_NAME="${2:-Qwen/Qwen3-VL-8B-Thinking}"
-OUTPUT_DIR="${3:-results-redo/swig_action_qwen3vl_thinking}"
+MODEL_NAME="${2:-Qwen/Qwen3-VL-4B-Instruct}"
+OUTPUT_DIR="${3:-results-baseline-qwen3vl-4b-instruct/swig_action_qwen3vl_instruct}"
 
 # Set GPU (handle both "0" and "cuda:0" formats)
 if [[ "$GPU_ID" == cuda:* ]]; then
@@ -92,9 +92,9 @@ TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 LOG_FILE="$OUTPUT_DIR/swig_action_qwen3vl_evaluation_${TIMESTAMP}.log"
 
 # SWIG dataset paths
-SWIG_ROOT="data/swig_hoi"
+SWIG_ROOT="/workspace/data/swig_hoi"
 IMG_PREFIX="${SWIG_ROOT}/images_512"
-ANN_FILE="data/benchmarks_simplified/swig_action_referring_test_simplified.json"
+ANN_FILE="/workspace/Groma/groma_data/benchmarks_simplified/swig_action_referring_test_simplified.json"
 PRED_FILE="${OUTPUT_DIR}/swig_action_qwen3vl_results_${TIMESTAMP}.json"
 
 if [ -z "$VLLM_URL" ]; then
@@ -110,9 +110,14 @@ fi
 
 # GPU availability check (optional, shows info but doesn't fail)
 if command -v nvidia-smi &> /dev/null; then
-    echo "GPU Information:"
-    nvidia-smi --query-gpu=index,name,memory.total,memory.free --format=csv,noheader | nl -v 0 || true
-    echo ""
+      echo "GPU Information:"
+      if GPU_INFO=$(nvidia-smi --query-gpu=index,name,memory.total,memory.free --format=csv,noheader 2>/dev/null);
+  then
+          printf '%s\n' "$GPU_INFO" | nl -v 0
+      else
+          echo "  GPU info unavailable in this container"
+      fi
+      echo ""
 fi
 
 echo "========================================================================"
@@ -142,7 +147,7 @@ if [ ! -d "$IMG_PREFIX" ]; then
 fi
 
 # Count number of test images
-NUM_IMAGES=$(ls -1 "$IMG_PREFIX"/*.jpg 2>/dev/null | wc -l)
+NUM_IMAGES=$(find "$IMG_PREFIX" -maxdepth 1 -type f -name '*.jpg' | wc -l)
 echo "Found $NUM_IMAGES images in test set"
 echo ""
 

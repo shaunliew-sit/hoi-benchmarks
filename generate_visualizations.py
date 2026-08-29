@@ -30,29 +30,29 @@ RESULTS = {
         "baseline": REPO / "results-baseline-qwen3vl-4b-instruct/hico_ground_qwen3vl_instruct/hico_ground_qwen3vl_results_20260302_132553.json",
         "sft":      REPO / "results-sft-qwen3vl-4b/hico_ground_sft/hico_ground_sft_results_20260228_145909.json",
         "sft_think":REPO / "results-sft-qwen3vl-4b/hico_ground_sft/hico_ground_sft_results_20260228_145909_thinking.jsonl",
-        "grpo":     REPO / "results-sft-grpo-step140/hico_ground_sft/hico_ground_sft_results_20260226_144052.json",
-        "grpo_think":REPO / "results-sft-grpo-step140/hico_ground_sft/hico_ground_sft_results_20260226_144052_thinking.jsonl",
+        "grpo":     REPO / "results-sft-grpo-new/hico_ground_sft_new/hico_ground_sft_results_20260311_025017.json",
+        "grpo_think":REPO / "results-sft-grpo-new/hico_ground_sft_new/hico_ground_sft_results_20260311_025017_thinking.jsonl",
     },
     "hico_refer": {
         "baseline": REPO / "results-baseline-qwen3vl-4b-instruct/hico_action_qwen3vl_instruct/hico_action_qwen3vl_results_20260302_132528_per_triplet.json",
         "sft":      REPO / "results-sft-qwen3vl-4b/hico_action_sft/hico_action_sft_results_20260228_145855_per_triplet.json",
         "sft_think":REPO / "results-sft-qwen3vl-4b/hico_action_sft/hico_action_sft_results_20260228_145855_thinking.jsonl",
-        "grpo":     REPO / "results-sft-grpo-step140/hico_action_sft/hico_action_sft_results_20260226_144129_per_triplet.json",
-        "grpo_think":REPO / "results-sft-grpo-step140/hico_action_sft/hico_action_sft_results_20260226_144129_thinking.jsonl",
+        "grpo":     REPO / "results-sft-grpo-new/hico_action_sft_new/hico_action_sft_results_20260310_141500_per_triplet.json",
+        "grpo_think":REPO / "results-sft-grpo-new/hico_action_sft_new/hico_action_sft_results_20260310_141500_thinking.jsonl",
     },
     "swig_ground": {
         "baseline": REPO / "results-baseline-qwen3vl-4b-instruct/swig_ground_qwen3vl_instruct/swig_ground_qwen3vl_results_20260302_132422.json",
         "sft":      REPO / "results-sft-qwen3vl-4b/swig_ground_sft/swig_ground_sft_results_20260228_145937.json",
         "sft_think":REPO / "results-sft-qwen3vl-4b/swig_ground_sft/swig_ground_sft_results_20260228_145937_thinking.jsonl",
-        "grpo":     REPO / "results-sft-grpo-step140/swig_ground_sft/swig_ground_sft_results_20260226_143835.json",
-        "grpo_think":REPO / "results-sft-grpo-step140/swig_ground_sft/swig_ground_sft_results_20260226_143835_thinking.jsonl",
+        "grpo":     REPO / "results-sft-grpo-new/swig_ground_sft_new/swig_ground_sft_results_20260311_092108.json",
+        "grpo_think":REPO / "results-sft-grpo-new/swig_ground_sft_new/swig_ground_sft_results_20260311_092108_thinking.jsonl",
     },
     "swig_refer": {
         "baseline": REPO / "results-baseline-qwen3vl-4b-instruct/swig_action_qwen3vl_instruct/swig_action_qwen3vl_results_20260302_132455_per_triplet.json",
         "sft":      REPO / "results-sft-qwen3vl-4b/swig_action_sft/swig_action_sft_results_20260228_145929_per_triplet.json",
         "sft_think":REPO / "results-sft-qwen3vl-4b/swig_action_sft/swig_action_sft_results_20260228_145929_thinking.jsonl",
-        "grpo":     REPO / "results-sft-grpo-step140/swig_action_sft/swig_action_sft_results_20260226_143917_per_triplet.json",
-        "grpo_think":REPO / "results-sft-grpo-step140/swig_action_sft/swig_action_sft_results_20260226_143917_thinking.jsonl",
+        "grpo":     REPO / "results-sft-grpo-new/swig_action_sft_new/swig_action_sft_results_20260310_141513_per_triplet.json",
+        "grpo_think":REPO / "results-sft-grpo-new/swig_action_sft_new/swig_action_sft_results_20260310_141513_thinking.jsonl",
     },
 }
 
@@ -65,8 +65,8 @@ ANNOT_FILES = {
 
 # ── Mandatory images (MUST appear in visualizations) ────────────────────────
 MANDATORY = {
-    "hico_ground": ["HICO_test2015_00009124", "HICO_test2015_00003584", "HICO_test2015_00006612"],
-    "hico_refer":  ["HICO_test2015_00009124", "HICO_test2015_00003584", "HICO_test2015_00006612"],
+    "hico_ground": ["HICO_test2015_00009124", "HICO_test2015_00003584", "HICO_test2015_00006612", "HICO_test2015_00006692"],
+    "hico_refer":  ["HICO_test2015_00009124", "HICO_test2015_00003584", "HICO_test2015_00006612", "HICO_test2015_00006692"],
     "swig_ground": ["checking_24"],
     "swig_refer":  ["checking_24"],
 }
@@ -82,6 +82,7 @@ COLORS = {
     "person":   "#FF4444",
     "object":   "#4444FF",
     "gt":       "#22AA22",
+    "gt_alt":   "#FF6B00",   # orange — used when background is green
     "proposal": "#FF8800",
     "pred":     "#AA22FF",
     "baseline": "#00AAAA",
@@ -722,14 +723,27 @@ def score_all_samples(task, results, annots_list, annots_idx):
     return scored
 
 
+def _get_action_for_key(key, task, results, annots_idx):
+    """Return the action label for a lookup key (for diversity bucketing)."""
+    is_ground = 'ground' in task
+    if is_ground:
+        annot = annots_idx.get(key)
+        return annot.get('action', '') if annot else ''
+    else:
+        annot = annots_idx.get(key)
+        return annot.get('gt_action', '') if annot else ''
+
+
 def select_images_for_task(task, results, annots_list, annots_idx, scored,
                             n=IMAGES_PER_TASK):
     """
     Select n samples for visualization.
     Priority:
       1. Mandatory images (MUST include — one entry per mandatory image stem)
-      2. Wrong-proposal cases (score >= WRONG_PROPOSAL_THRESHOLD), highest score first
-      3. Fill remaining slots with diverse images (one per unique image stem)
+      2. Wrong-proposal cases (score >= WRONG_PROPOSAL_THRESHOLD), highest score first,
+         capped at 1 image per action category for diversity
+      3. Fill remaining slots with diverse images (one per unique image stem,
+         one per action category)
 
     Returns list of lookup_keys.
     """
@@ -738,6 +752,7 @@ def select_images_for_task(task, results, annots_list, annots_idx, scored,
     selected = []
     selected_set = set()
     selected_stems = set()
+    selected_actions = set()
 
     def get_stem(key):
         if is_ground:
@@ -747,7 +762,10 @@ def select_images_for_task(task, results, annots_list, annots_idx, scored,
             fn = entry.get('file_name', '')
         return Path(fn).stem
 
-    # Pass 1: mandatory images
+    def get_action(key):
+        return _get_action_for_key(key, task, results, annots_idx)
+
+    # Pass 1: mandatory images (action diversity not enforced here)
     all_keys = list(results['sft'].keys())
     for stem in mandatory_stems:
         for key in all_keys:
@@ -755,9 +773,10 @@ def select_images_for_task(task, results, annots_list, annots_idx, scored,
                 selected.append(key)
                 selected_set.add(key)
                 selected_stems.add(stem)
+                selected_actions.add(get_action(key))
                 break  # one entry per mandatory image
 
-    # Pass 2: wrong-proposal cases
+    # Pass 2: wrong-proposal cases, diverse actions, highest score first
     wrong_cases = []
     for key, model_scores in scored.items():
         max_score = max((v[0] for v in model_scores.values()), default=0)
@@ -769,16 +788,43 @@ def select_images_for_task(task, results, annots_list, annots_idx, scored,
     for score_val, key in wrong_cases:
         if len(selected) >= n:
             break
-        selected.append(key)
-        selected_set.add(key)
-        selected_stems.add(get_stem(key))
+        stem = get_stem(key)
+        action = get_action(key)
+        if key not in selected_set and stem not in selected_stems and action not in selected_actions:
+            selected.append(key)
+            selected_set.add(key)
+            selected_stems.add(stem)
+            selected_actions.add(action)
 
-    # Pass 3: fill with diverse samples
+    # Pass 2b: relax action constraint if still not enough (allow repeated actions)
+    for score_val, key in wrong_cases:
+        if len(selected) >= n:
+            break
+        stem = get_stem(key)
+        if key not in selected_set and stem not in selected_stems:
+            selected.append(key)
+            selected_set.add(key)
+            selected_stems.add(stem)
+            selected_actions.add(get_action(key))
+
+    # Pass 3: fill with diverse samples (action diversity first, then any)
     if len(selected) < n:
         import random
         rng = random.Random(42)
         shuffled_keys = list(all_keys)
         rng.shuffle(shuffled_keys)
+        # First pass: prefer unseen actions
+        for key in shuffled_keys:
+            if len(selected) >= n:
+                break
+            stem = get_stem(key)
+            action = get_action(key)
+            if key not in selected_set and stem not in selected_stems and action not in selected_actions:
+                selected.append(key)
+                selected_set.add(key)
+                selected_stems.add(stem)
+                selected_actions.add(action)
+        # Second pass: fill any remaining slots with any unseen stems
         for key in shuffled_keys:
             if len(selected) >= n:
                 break
@@ -824,6 +870,26 @@ def build_selection_manifest(task, selected_keys, scored, results):
 
 # ── Drawing utilities ──────────────────────────────────────────────────────────
 
+def get_gt_color(img_array):
+    """
+    Return appropriate GT bbox color based on the image's border region hue.
+    Returns the alternate orange color when the background is dominated by green
+    (e.g. a sports field), so the GT box remains clearly visible.
+    """
+    h, w = img_array.shape[:2]
+    border_px = max(1, min(15, h // 10, w // 10))
+    sample = np.concatenate([
+        img_array[:border_px, :, :3].reshape(-1, 3),
+        img_array[-border_px:, :, :3].reshape(-1, 3),
+        img_array[:, :border_px, :3].reshape(-1, 3),
+        img_array[:, -border_px:, :3].reshape(-1, 3),
+    ]).astype(float)
+    r_mean, g_mean, b_mean = sample[:, 0].mean(), sample[:, 1].mean(), sample[:, 2].mean()
+    if g_mean > r_mean * 1.15 and g_mean > b_mean * 1.15 and g_mean > 60:
+        return COLORS["gt_alt"]
+    return COLORS["gt"]
+
+
 def load_image(file_name, task):
     """Load PIL image for a given file_name and task (determines image dir)."""
     if 'hico' in task:
@@ -839,7 +905,7 @@ def load_image(file_name, task):
     return Image.open(img_path).convert('RGB')
 
 
-def draw_bboxes_on_ax(ax, img_array, bbox_groups, title, title_color='black', fontsize=9):
+def draw_bboxes_on_ax(ax, img_array, bbox_groups, title, title_color='black', fontsize=13):
     """
     Draw an image with colored bounding boxes on a matplotlib Axes.
 
@@ -922,7 +988,7 @@ def draw_bboxes_on_ax(ax, img_array, bbox_groups, title, title_color='black', fo
             legend_patches.append(patches.Patch(color=legend_color, label=label))
 
     if legend_patches:
-        ax.legend(handles=legend_patches, loc='upper right', fontsize=6,
+        ax.legend(handles=legend_patches, loc='upper right', fontsize=10,
                   framealpha=0.7, markerscale=0.8)
 
 
@@ -958,14 +1024,15 @@ def generate_comparison_grounding(task, key, results, annots_idx, output_dir):
     obj_cat = annot.get('object_category', '')
 
     fig, axes = plt.subplots(1, 4, figsize=(22, 6))
-    fig.suptitle(f"{fn}  —  {action} | {obj_cat}", fontsize=9, y=1.01)
+    fig.suptitle(f"{fn}  —  {action} | {obj_cat}", fontsize=13, y=1.01)
 
     # GT panel
+    gt_color = get_gt_color(img_arr)
     gt_groups = [{"bboxes": [[p, o] for p, o in gt_pairs_px],
-                  "p_color": COLORS["gt"], "o_color": COLORS["gt"],
+                  "p_color": gt_color, "o_color": gt_color,
                   "label": "GT pair", "linestyle": "-"}]
     draw_bboxes_on_ax(axes[0], img_arr, gt_groups,
-                      f"Ground Truth\n{len(gt_pairs_px)} pair(s)", fontsize=8)
+                      f"Ground Truth\n{len(gt_pairs_px)} pair(s)", fontsize=12)
 
     # Model panels
     for ax, (model_label, result_key) in zip(axes[1:], [
@@ -995,7 +1062,7 @@ def generate_comparison_grounding(task, key, results, annots_idx, output_dir):
         pred_groups = [{"bboxes": [[p, o] for p, o in pred_pairs],
                         "p_color": COLORS["pred"], "o_color": COLORS["pred"],
                         "label": "Pred pair"}]
-        draw_bboxes_on_ax(ax, img_arr, pred_groups, subtitle, fontsize=7)
+        draw_bboxes_on_ax(ax, img_arr, pred_groups, subtitle, fontsize=11)
 
     plt.tight_layout()
     safe_name = Path(fn).stem + f"__{aoid.replace('/', '_')}"
@@ -1024,11 +1091,11 @@ def generate_comparison_referring(task, key, results, annots_idx, output_dir):
     ]
 
     fig, axes = plt.subplots(1, 4, figsize=(22, 6))
-    fig.suptitle(f"{fn}  —  GT: {gt_action}", fontsize=9, y=1.01)
+    fig.suptitle(f"{fn}  —  GT: {gt_action}", fontsize=13, y=1.01)
 
     # GT panel (show input bboxes + GT action label)
     draw_bboxes_on_ax(axes[0], img_arr, input_groups,
-                      f"Ground Truth\n{gt_action}", fontsize=8)
+                      f"Ground Truth\n{gt_action}", fontsize=12)
 
     # Model panels
     for ax, (model_label, result_key) in zip(axes[1:], [
@@ -1056,7 +1123,7 @@ def generate_comparison_referring(task, key, results, annots_idx, output_dir):
                 subtitle += f"\n{wrap_thinking(thinking, max_lines=2, line_width=50)}"
 
         draw_bboxes_on_ax(ax, img_arr, input_groups, subtitle,
-                          title_color=t_color, fontsize=7)
+                          title_color=t_color, fontsize=11)
 
     plt.tight_layout()
     stem = Path(fn).stem
@@ -1113,19 +1180,18 @@ def generate_detail_figure(task, key, model_label, result_key,
     W, H = img.size
     image_stem = Path(fn).stem
 
-    # Load proposals
+    # Load proposals — consolidated into one group so the legend stays compact
     proposals = load_proposals(image_stem)
-    prop_groups = []
-    for prop in proposals:
-        bb_px = prop['bbox']
-        conf = prop.get('confidence', 0)
-        prop_groups.append({
-            "bboxes": [bb_px],
+    if proposals:
+        prop_groups = [{
+            "bboxes": [prop['bbox'] for prop in proposals],
             "color": COLORS["proposal"],
-            "label": f"{prop['class_name']} {conf:.2f}",
+            "label": f"Proposals ({len(proposals)})",
             "linestyle": "--",
-            "linewidth": 1.5,
-        })
+            "linewidth": 1.0,
+        }]
+    else:
+        prop_groups = []
 
     entry = results[result_key].get(key, {})
 
@@ -1139,8 +1205,9 @@ def generate_detail_figure(task, key, model_label, result_key,
         else:
             pred_pairs = parse_ground_answer_sft(entry.get('answer'), W, H)
 
+        gt_color = get_gt_color(img_arr)
         gt_groups   = [{"bboxes": [[p, o] for p, o in gt_pairs_px],
-                        "p_color": COLORS["gt"], "o_color": COLORS["gt"], "label": "GT pair"}]
+                        "p_color": gt_color, "o_color": gt_color, "label": "GT pair"}]
         pred_groups = [{"bboxes": [[p, o] for p, o in pred_pairs],
                         "p_color": COLORS["person"], "o_color": COLORS["object"],
                         "label": "Pred pair"}]
@@ -1179,24 +1246,24 @@ def generate_detail_figure(task, key, model_label, result_key,
         fig, (ax_prop, ax_pred, ax_gt) = plt.subplots(1, 3, figsize=(18, 6))
         crop_axes = []
 
-    fig.suptitle(fig_suptitle, fontsize=9, y=1.01)
+    fig.suptitle(fig_suptitle, fontsize=13, y=1.01)
 
-    # Panel 1: Proposals
+    # Panel 1: Proposals — use smaller fontsize so boxes don't crowd the panel
     draw_bboxes_on_ax(ax_prop, img_arr, prop_groups,
-                      f"Proposals ({len(proposals)} detected)", fontsize=7)
+                      f"Proposals ({len(proposals)} detected)", fontsize=10)
 
     # Panel 2: Prediction + thinking caption
     think_caption = wrap_thinking(thinking, max_lines=3, line_width=55) if thinking else ''
     pred_full = pred_title + (f"\n{think_caption}" if think_caption else "")
-    draw_bboxes_on_ax(ax_pred, img_arr, pred_groups, pred_full, fontsize=7)
+    draw_bboxes_on_ax(ax_pred, img_arr, pred_groups, pred_full, fontsize=11)
 
     # Panel 3: GT
-    draw_bboxes_on_ax(ax_gt, img_arr, gt_groups, gt_title, fontsize=8)
+    draw_bboxes_on_ax(ax_gt, img_arr, gt_groups, gt_title, fontsize=12)
 
     # Row 2: zoom crops
     for ax, (turn, bbox, crop_img) in zip(crop_axes, zoom_crops):
         ax.imshow(np.array(crop_img))
-        ax.set_title(f"Turn {turn}: zoom_in\n{bbox}", fontsize=7)
+        ax.set_title(f"Turn {turn}: zoom_in\n{bbox}", fontsize=10)
         ax.axis('off')
 
     # Tool call sequence as figure footer
@@ -1205,7 +1272,7 @@ def generate_detail_figure(task, key, model_label, result_key,
             f"zoom_in({tc.get('bbox','')})" if tc.get('name') == 'zoom_in' else tc.get('name','?')
             for tc in tool_calls
         )
-        fig.text(0.5, -0.02, f"Tools: {tool_summary[:160]}", ha='center', fontsize=6, color='gray')
+        fig.text(0.5, -0.02, f"Tools: {tool_summary[:160]}", ha='center', fontsize=9, color='gray')
 
     if n_crops == 0:
         plt.tight_layout()

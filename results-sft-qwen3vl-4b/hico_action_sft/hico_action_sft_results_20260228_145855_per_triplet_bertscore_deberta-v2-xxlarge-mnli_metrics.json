@@ -1,0 +1,17 @@
+{
+  "model": "microsoft/deberta-v2-xxlarge-mnli",
+  "lang": "en",
+  "rescale_with_baseline": true,
+  "num_samples": 33405,
+  "bertscore_precision_mean": 0.8001467423102863,
+  "bertscore_recall_mean": 0.7888171290926654,
+  "bertscore_f1_mean": 0.7941858890812797,
+  "bertscore_precision_min": 0.0,
+  "bertscore_precision_max": 1.000000238418579,
+  "bertscore_recall_min": 0.0,
+  "bertscore_recall_max": 1.000000238418579,
+  "bertscore_f1_min": 0.0,
+  "bertscore_f1_max": 1.000000238418579,
+  "input_file": "/workspace/hoi-benchmarks/results-sft-qwen3vl-4b/hico_action_sft/hico_action_sft_results_20260228_145855_per_triplet.json",
+  "timestamp": "20260304_031700"
+}

@@ -1,0 +1,17 @@
+{
+  "model": "microsoft/deberta-v2-xxlarge-mnli",
+  "lang": "en",
+  "rescale_with_baseline": true,
+  "num_samples": 19680,
+  "bertscore_precision_mean": 0.7410836640291097,
+  "bertscore_recall_mean": 0.7419143585669922,
+  "bertscore_f1_mean": 0.7412357526899475,
+  "bertscore_precision_min": 0.0,
+  "bertscore_precision_max": 1.0000007152557373,
+  "bertscore_recall_min": 0.0,
+  "bertscore_recall_max": 1.0000007152557373,
+  "bertscore_f1_min": 0.0,
+  "bertscore_f1_max": 1.0000007152557373,
+  "input_file": "/workspace/hoi-benchmarks/results-sft-grpo-qwen3vl-8b-step1000/swig_action/swig_action_sft_results_20260426_031541_per_triplet.json",
+  "timestamp": "20260429_063133"
+}

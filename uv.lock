@@ -475,6 +475,7 @@ requires-dist = [
     { name = "bert-score", specifier = ">=0.3.13" },
     { name = "google-genai", specifier = ">=1.57.0" },
     { name = "numpy", specifier = ">=2.4.1" },
+    { name = "openai", specifier = ">=1.0.0" },
     { name = "openai", specifier = ">=2.15.0" },
     { name = "pillow", specifier = ">=12.1.0" },
     { name = "pycocoevalcap", specifier = ">=1.2" },

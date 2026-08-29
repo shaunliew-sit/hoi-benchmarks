@@ -1,0 +1,44 @@
+{
+  "sitting on": {
+    "total_samples": 2,
+    "total_gt_pairs": 4,
+    "total_pred_pairs": 2,
+    "matched_pairs_05": 2
+  },
+  "holding": {
+    "total_samples": 1,
+    "total_gt_pairs": 1,
+    "total_pred_pairs": 2,
+    "matched_pairs_05": 1
+  },
+  "riding": {
+    "total_samples": 3,
+    "total_gt_pairs": 6,
+    "total_pred_pairs": 4,
+    "matched_pairs_05": 3
+  },
+  "walking": {
+    "total_samples": 1,
+    "total_gt_pairs": 1,
+    "total_pred_pairs": 1,
+    "matched_pairs_05": 0
+  },
+  "carrying": {
+    "total_samples": 1,
+    "total_gt_pairs": 1,
+    "total_pred_pairs": 1,
+    "matched_pairs_05": 0
+  },
+  "wearing": {
+    "total_samples": 1,
+    "total_gt_pairs": 1,
+    "total_pred_pairs": 1,
+    "matched_pairs_05": 1
+  },
+  "lying on": {
+    "total_samples": 1,
+    "total_gt_pairs": 1,
+    "total_pred_pairs": 1,
+    "matched_pairs_05": 1
+  }
+}
