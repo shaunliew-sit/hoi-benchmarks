@@ -28,6 +28,11 @@ import numpy as np
 
 from openai import OpenAI
 
+from zoom_ablation import (
+    ZoomAblationPolicy, add_zoom_ablation_args,
+    FORCED_CROP_OBSERVATION, pad_bbox, union_bbox,
+)
+
 try:
     import wandb
     WANDB_AVAILABLE = True
@@ -290,7 +295,8 @@ def _prune_image_history(messages: list) -> list:
 
 def run_sft_agent_loop(client: OpenAI, model_name: str, messages: list,
                        original_image: Image.Image, max_turns: int = 20,
-                       max_zoom_turns: int = 5) -> tuple:
+                       max_zoom_turns: int = 5,
+                       zoom_policy=None, fallback_zoom_bbox=None) -> tuple:
     """
     Multi-turn inference with zoom_in/zoom_out tool handling.
 
@@ -302,6 +308,10 @@ def run_sft_agent_loop(client: OpenAI, model_name: str, messages: list,
     tool_calls_log = []
     all_thinking = []
     zoom_crops = []  # (turn, bbox, cropped_image)
+    # Zoom-policy ablation (never / always / random); default is stock SAHA behaviour.
+    if zoom_policy is None:
+        zoom_policy = ZoomAblationPolicy()
+    nudges_used = 0
 
     for turn in range(max_turns):
         # Build vision content for current turn
@@ -371,7 +381,31 @@ def run_sft_agent_loop(client: OpenAI, model_name: str, messages: list,
         # Check for final answer
         answer = extract_answer(text)
         if answer is not None:
-            return answer, tool_calls_log, "\n\n".join(all_thinking), zoom_crops
+            executed_zooms = sum(1 for t in tool_calls_log
+                                 if t.get("name") == "zoom_in" and not t.get("denied"))
+            verdict = zoom_policy.on_answer(executed_zooms, nudges_used)
+            if verdict == "accept":
+                return answer, tool_calls_log, "\n\n".join(all_thinking), zoom_crops
+            # always/random: the model answered without zooming -> ask it to zoom first
+            messages.append({"role": "assistant", "content": text})
+            if verdict == "nudge":
+                nudges_used += 1
+                messages.append({"role": "user", "content": zoom_policy.nudge_text()})
+                continue
+            # verdict == "force": model still refuses, inject a deterministic crop
+            forced = zoom_policy.forced_bbox(fallback_zoom_bbox)
+            current_image = execute_zoom_in(original_image, forced)
+            tool_calls_log.append({"name": "zoom_in", "bbox": forced,
+                                   "turn": turn, "forced": True})
+            zoom_crops.append((turn, forced, current_image.copy()))
+            messages.append({
+                "role": "user",
+                "content": [
+                    {"type": "image_url", "image_url": {"url": image_to_base64(current_image)}},
+                    {"type": "text", "text": FORCED_CROP_OBSERVATION},
+                ]
+            })
+            continue
 
         # Check for tool call
         tool = parse_tool_call(text)
@@ -380,12 +414,27 @@ def run_sft_agent_loop(client: OpenAI, model_name: str, messages: list,
             tool_args = tool.get("arguments", {})
 
             if tool_name == "zoom_in":
-                bbox = tool_args.get("bbox_2d", [0, 0, 1000, 1000])
+                requested_bbox = tool_args.get("bbox_2d", [0, 0, 1000, 1000])
+                decision = zoom_policy.on_zoom_request(requested_bbox, turn)
+                if decision.action == "deny":
+                    # never-zoom: refuse the tool, hand back a text-only observation
+                    tool_calls_log.append({"name": "zoom_in", "bbox": requested_bbox,
+                                           "turn": turn, "denied": True})
+                    messages.append({"role": "assistant", "content": text})
+                    messages.append({"role": "user", "content": decision.note})
+                    continue
+                bbox = decision.bbox
                 current_image = execute_zoom_in(original_image, bbox)
-                tool_calls_log.append({"name": "zoom_in", "bbox": bbox, "turn": turn})
+                call_record = {"name": "zoom_in", "bbox": bbox, "turn": turn}
+                if decision.action == "replace":
+                    # random-zoom: model chose the region, harness overrides it
+                    call_record["requested_bbox"] = decision.requested_bbox
+                    call_record["randomized"] = True
+                tool_calls_log.append(call_record)
                 zoom_crops.append((turn, bbox, current_image.copy()))
             elif tool_name == "zoom_out":
                 current_image = original_image
+                zoom_policy.on_zoom_out()
                 tool_calls_log.append({"name": "zoom_out", "turn": turn})
                 # ALIGNED: zoom_out returns a TEXT-ONLY observation (matches training)
                 messages.append({"role": "assistant", "content": text})
@@ -765,6 +814,17 @@ def eval_model(args):
         os.makedirs(viz_dir, exist_ok=True)
         print(f"Visualization directory: {viz_dir}\n")
 
+    # ---- Zoom-policy ablation ------------------------------------------------
+    zoom_policy = ZoomAblationPolicy.from_args(args)
+    system_prompt = zoom_policy.apply_to_system_prompt(SYSTEM_PROMPT)
+    # resumed samples already carry their zoom counters — fold them back in
+    for _rec in per_sample_results:
+        if isinstance(_rec.get("zoom_stats"), dict):
+            zoom_policy.accumulate(_rec["zoom_stats"])
+    print(f"\nZoom policy: {zoom_policy.mode}")
+    if not zoom_policy.is_baseline:
+        print(f"  config: {json.dumps(zoom_policy.config())}")
+
     print("\nStarting evaluation...")
     for idx, sample in enumerate(tqdm(dataset_samples, disable=show_verbose)):
         if idx in processed_indices:
@@ -807,7 +867,7 @@ def eval_model(args):
         # Build initial messages
         user_prompt = build_grounding_prompt(action, object_category, proposals)
         messages = [
-            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "system", "content": system_prompt},
             {
                 "role": "user",
                 "content": [
@@ -818,15 +878,22 @@ def eval_model(args):
         ]
 
         # Run agent loop
+        # No fallback region for grounding: the target boxes ARE the GT, so a
+        # GT-derived forced crop would leak. Falls back to a centred crop.
+        zoom_policy.new_episode(idx)
         import time as _time
         _t0 = _time.perf_counter()
         answer_text, tool_calls, thinking, zoom_crops = run_sft_agent_loop(
-            client, args.model_name, messages, image, max_turns=args.max_turns
+            client, args.model_name, messages, image, max_turns=args.max_turns,
+            zoom_policy=zoom_policy, fallback_zoom_bbox=None
         )
         _latency_sec = _time.perf_counter() - _t0
+        zoom_episode = zoom_policy.episode_stats()
+        zoom_policy.accumulate(zoom_episode)
 
         if show_verbose:
             print(f"  Tool calls: {len(tool_calls)}")
+            print(f"  Zoom [{zoom_policy.mode}]: {zoom_episode}")
             if thinking:
                 print(f"  Thinking: {thinking[:150]}...")
             print(f"  Answer: {str(answer_text)[:100]}")
@@ -864,6 +931,7 @@ def eval_model(args):
             "answer": answer_text,
             "latency_sec": _latency_sec,
             "num_zoom_in": sum(1 for t in tool_calls if t.get("name") == "zoom_in"),
+            "zoom_stats": zoom_episode,
             "matches_per_threshold": {},
         }
 
@@ -1004,6 +1072,8 @@ def eval_model(args):
         "ARs": ar_small, "ARm": ar_medium, "ARl": ar_large,
         "missing_proposals": missing_proposals,
     }
+    metrics.update(zoom_policy.summary(len(per_sample_results)))
+    metrics["zoom_ablation_config"] = zoom_policy.config()
 
     print(f"{'AR':<12} {ar*100:>9.1f}%  Average Recall @ IoU=0.50:0.95")
     print(f"{'AR@0.5':<12} {ar_50*100:>9.1f}%  Average Recall @ IoU=0.50")
@@ -1012,6 +1082,12 @@ def eval_model(args):
     print(f"{'ARm':<12} {ar_medium*100:>9.1f}%  Medium objects")
     print(f"{'ARl':<12} {ar_large*100:>9.1f}%  Large objects")
     print(f"\nMissing proposals: {missing_proposals}/{len(dataset_samples)}")
+    print(f"\n--- Zoom policy: {zoom_policy.mode} ---")
+    for k in ("zoom_rate", "zooms_per_sample"):
+        print(f"{k:<22} {metrics[k]:>9.3f}")
+    for k in ("zoom_requested_total", "zoom_executed_total", "zoom_denied_total",
+              "zoom_randomized_total", "zoom_forced_total", "force_nudges_total"):
+        print(f"{k:<22} {metrics[k]:>9d}")
 
     # Save results
     os.makedirs(os.path.dirname(os.path.abspath(args.result_file)), exist_ok=True)
@@ -1099,6 +1175,7 @@ if __name__ == "__main__":
                         help="Limit evaluation to first N samples")
     parser.add_argument("--max-turns", type=int, default=20,
                         help="Maximum tool call turns per sample")
+    add_zoom_ablation_args(parser)
     parser.add_argument("--verbose", action="store_true",
                         help="Show per-sample results")
     parser.add_argument("--wandb", action="store_true",

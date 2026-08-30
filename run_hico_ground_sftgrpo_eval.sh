@@ -33,6 +33,25 @@
 #   RESUME=1          Resume from the most recent partial checkpoint in OUTPUT_DIR
 #   IMAGE_ID=<file>   Run only samples matching this image filename
 #   OUTPUT_DIR=<dir>  Override output dir (default: results-sftgrpo/...)
+#
+# ---- ZOOM ABLATION (reviewer request) ------------------------------------
+#   ZOOM_MODE=<mode>  adaptive (default, stock SAHA) | never | always | random
+#                       never  : every zoom_in is denied -> no-tool lower bound
+#                       always : model must zoom >=1x, it still picks the region
+#                                -> ablates *when* to zoom (the gate)
+#                       random : model must zoom >=1x, but the region is replaced
+#                                by a random crop -> ablates *where* to zoom
+#                     Non-adaptive modes write to $OUTPUT_DIR/zoom_<mode>/ so the
+#                     four conditions never clobber each other.
+#   ZOOM_SEED=N       RNG seed for ZOOM_MODE=random (default: 0). Re-run with 2-3
+#                     seeds and report mean +/- std.
+#   ZOOM_EXTRA="..."  Extra flags passed through, e.g.
+#                     ZOOM_EXTRA="--random-zoom-max-iou 0.0"   (force a disjoint region)
+#                     ZOOM_EXTRA="--random-zoom-free-size"     (randomise box size too)
+#                     ZOOM_EXTRA="--never-zoom-prompt-hint"    (also disable tools in prompt)
+#
+#   e.g.  ZOOM_MODE=never  bash <this script> 0
+#         ZOOM_MODE=random ZOOM_SEED=1 bash <this script> 0
 ################################################################################
 
 set -e
@@ -44,6 +63,21 @@ CHECKPOINT_PATH="${CHECKPOINT_PATH:-/raid/scratch/shaun_sit/hoi/AdaTooler-V/verl
 # OUTPUT_DIR="${OUTPUT_DIR:-results-sftgrpo/hico_ground_grpo}"
 OUTPUT_DIR="${OUTPUT_DIR:-results-sftgrpo/hico_ground_grpo_4b_step1000}"
 MAX_TURNS="${MAX_TURNS:-6}"
+
+# ---- Zoom-policy ablation --------------------------------------------------
+ZOOM_MODE="${ZOOM_MODE:-adaptive}"
+ZOOM_SEED="${ZOOM_SEED:-0}"
+case "$ZOOM_MODE" in
+    adaptive|never|always|random) ;;
+    *) echo "ERROR: ZOOM_MODE must be adaptive|never|always|random (got '$ZOOM_MODE')"; exit 1 ;;
+esac
+ZOOM_FLAGS="--zoom-mode $ZOOM_MODE --zoom-seed $ZOOM_SEED"
+[ -n "$ZOOM_EXTRA" ] && ZOOM_FLAGS="$ZOOM_FLAGS $ZOOM_EXTRA"
+if [ "$ZOOM_MODE" != "adaptive" ]; then
+    # keep each ablation condition in its own dir (results + resume partials)
+    OUTPUT_DIR="${OUTPUT_DIR%/}/zoom_${ZOOM_MODE}"
+    [ "$ZOOM_MODE" = "random" ] && OUTPUT_DIR="${OUTPUT_DIR}_seed${ZOOM_SEED}"
+fi
 
 if [[ "$GPU_ID" == cuda:* ]]; then
     DEVICE_ARG="$GPU_ID"
@@ -170,7 +204,8 @@ EVAL_CMD="$PYTHON eval_hico_ground_sftgrpo_qwen3vl.py \
     --img-prefix $IMG_PREFIX \
     --proposals-dir $PROPOSALS_DIR \
     --result-file $RESULT_FILE \
-    --max-turns $MAX_TURNS"
+    --max-turns $MAX_TURNS \
+    $ZOOM_FLAGS"
 
 [ ! -z "$VERBOSE_FLAG" ] && EVAL_CMD="$EVAL_CMD $VERBOSE_FLAG"
 [ ! -z "$MAX_IMAGES_FLAG" ] && EVAL_CMD="$EVAL_CMD $MAX_IMAGES_FLAG"
